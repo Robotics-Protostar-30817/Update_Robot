@@ -60,18 +60,35 @@ loadScripts(document, 'script');</script>
 <li><a href="#field-detail" tabindex="0">Field Details</a>
 <ol class="toc-list">
 <li><a href="#INSTANCE" tabindex="0">INSTANCE</a></li>
+<li><a href="#CAMERA_WIDTH" tabindex="0">CAMERA_WIDTH</a></li>
+<li><a href="#CAMERA_HEIGHT" tabindex="0">CAMERA_HEIGHT</a></li>
+<li><a href="#LENS_FX" tabindex="0">LENS_FX</a></li>
+<li><a href="#LENS_FY" tabindex="0">LENS_FY</a></li>
+<li><a href="#LENS_CX" tabindex="0">LENS_CX</a></li>
+<li><a href="#LENS_CY" tabindex="0">LENS_CY</a></li>
 <li><a href="#CAMERA_TO_CENTER_X_INCHES" tabindex="0">CAMERA_TO_CENTER_X_INCHES</a></li>
 <li><a href="#CAMERA_TO_CENTER_Y_INCHES" tabindex="0">CAMERA_TO_CENTER_Y_INCHES</a></li>
 <li><a href="#CAMERA_TO_CENTER_Z_INCHES" tabindex="0">CAMERA_TO_CENTER_Z_INCHES</a></li>
+<li><a href="#CAMERA_UPWARD_TILT_DEGREES" tabindex="0">CAMERA_UPWARD_TILT_DEGREES</a></li>
+<li><a href="#CAMERA_YAW_DEGREES" tabindex="0">CAMERA_YAW_DEGREES</a></li>
+<li><a href="#CAMERA_ROLL_DEGREES" tabindex="0">CAMERA_ROLL_DEGREES</a></li>
 </ol>
 </li>
 <li><a href="#method-detail" tabindex="0">Method Details</a>
 <ol class="toc-list">
 <li><a href="#init(com.qualcomm.robotcore.hardware.HardwareMap,org.firstinspires.ftc.robotcore.external.Telemetry)" tabindex="0">init(HardwareMap, Telemetry)</a></li>
+<li><a href="#rebuildPortal(com.qualcomm.robotcore.hardware.HardwareMap)" tabindex="0">rebuildPortal(HardwareMap)</a></li>
+<li><a href="#setEnableTelemetry(boolean)" tabindex="0">setEnableTelemetry(boolean)</a></li>
 <li><a href="#periodic()" tabindex="0">periodic()</a></li>
-<li><a href="#getDetections()" tabindex="0">getDetections()</a></li>
+<li><a href="#cameraToRobotCenter(org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc)" tabindex="0">cameraToRobotCenter(AprilTagPoseFtc)</a></li>
+<li><a href="#isRedAudienceScorable()" tabindex="0">isRedAudienceScorable()</a></li>
+<li><a href="#isBlueAudienceScorable()" tabindex="0">isBlueAudienceScorable()</a></li>
+<li><a href="#getRedAudienceCell()" tabindex="0">getRedAudienceCell()</a></li>
+<li><a href="#getBlueAudienceCell()" tabindex="0">getBlueAudienceCell()</a></li>
 <li><a href="#getBestCell(org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Color)" tabindex="0">getBestCell(Vision.Cell.Color)</a></li>
+<li><a href="#getDetections()" tabindex="0">getDetections()</a></li>
 <li><a href="#isCellScorable(org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection)" tabindex="0">isCellScorable(AprilTagClusterDetection)</a></li>
+<li><a href="#pauseStream()" tabindex="0">pauseStream()</a></li>
 <li><a href="#getVisionPortal()" tabindex="0">getVisionPortal()</a></li>
 <li><a href="#getAprilTagProcessor()" tabindex="0">getAprilTagProcessor()</a></li>
 <li><a href="#close()" tabindex="0">close()</a></li>
@@ -97,8 +114,8 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">Vision</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements dev.nextftc.core.subsystems.Subsystem</span></div>
-<div class="block">Subsystem for robot vision processing using an AprilTag processor and VisionPortal.
-Manages camera stream initialization, target tracking, telemetry output, and cell detection.</div>
+<div class="block">Vision subsystem tuned for the goBILDA Global Shutter USB Camera (3122-0004-0001).
+Native sensor aspect ratio is 16:10 (1280x800 or 640x400).</div>
 </div>
 </section>
 <section class="summary">
@@ -127,24 +144,45 @@ Manages camera stream initialization, target tracking, telemetry output, and cel
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Field</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>static final double</code></div>
-<div class="col-second even-row-color"><code><a href="#CAMERA_TO_CENTER_X_INCHES" class="member-name-link">CAMERA_TO_CENTER_X_INCHES</a></code></div>
-<div class="col-last even-row-color">
-<div class="block">Positive x is to the robot's right.</div>
-</div>
-<div class="col-first odd-row-color"><code>static final double</code></div>
-<div class="col-second odd-row-color"><code><a href="#CAMERA_TO_CENTER_Y_INCHES" class="member-name-link">CAMERA_TO_CENTER_Y_INCHES</a></code></div>
-<div class="col-last odd-row-color">
-<div class="block">Positive y is to the robot's front forward.</div>
-</div>
-<div class="col-first even-row-color"><code>static final double</code></div>
-<div class="col-second even-row-color"><code><a href="#CAMERA_TO_CENTER_Z_INCHES" class="member-name-link">CAMERA_TO_CENTER_Z_INCHES</a></code></div>
-<div class="col-last even-row-color">
-<div class="block">Positive z is to the robot's up.</div>
-</div>
-<div class="col-first odd-row-color"><code>static final <a href="Vision.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision</a></code></div>
-<div class="col-second odd-row-color"><code><a href="#INSTANCE" class="member-name-link">INSTANCE</a></code></div>
+<div class="col-first even-row-color"><code>static final int</code></div>
+<div class="col-second even-row-color"><code><a href="#CAMERA_HEIGHT" class="member-name-link">CAMERA_HEIGHT</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static double</code></div>
+<div class="col-second odd-row-color"><code><a href="#CAMERA_ROLL_DEGREES" class="member-name-link">CAMERA_ROLL_DEGREES</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static double</code></div>
+<div class="col-second even-row-color"><code><a href="#CAMERA_TO_CENTER_X_INCHES" class="member-name-link">CAMERA_TO_CENTER_X_INCHES</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static double</code></div>
+<div class="col-second odd-row-color"><code><a href="#CAMERA_TO_CENTER_Y_INCHES" class="member-name-link">CAMERA_TO_CENTER_Y_INCHES</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static double</code></div>
+<div class="col-second even-row-color"><code><a href="#CAMERA_TO_CENTER_Z_INCHES" class="member-name-link">CAMERA_TO_CENTER_Z_INCHES</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static double</code></div>
+<div class="col-second odd-row-color"><code><a href="#CAMERA_UPWARD_TILT_DEGREES" class="member-name-link">CAMERA_UPWARD_TILT_DEGREES</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static final int</code></div>
+<div class="col-second even-row-color"><code><a href="#CAMERA_WIDTH" class="member-name-link">CAMERA_WIDTH</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static double</code></div>
+<div class="col-second odd-row-color"><code><a href="#CAMERA_YAW_DEGREES" class="member-name-link">CAMERA_YAW_DEGREES</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static final <a href="Vision.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision</a></code></div>
+<div class="col-second even-row-color"><code><a href="#INSTANCE" class="member-name-link">INSTANCE</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static final double</code></div>
+<div class="col-second odd-row-color"><code><a href="#LENS_CX" class="member-name-link">LENS_CX</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static final double</code></div>
+<div class="col-second even-row-color"><code><a href="#LENS_CY" class="member-name-link">LENS_CY</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static double</code></div>
+<div class="col-second odd-row-color"><code><a href="#LENS_FX" class="member-name-link">LENS_FX</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static double</code></div>
+<div class="col-second even-row-color"><code><a href="#LENS_FY" class="member-name-link">LENS_FY</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -153,55 +191,67 @@ Manages camera stream initialization, target tracking, telemetry output, and cel
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel" aria-labelledby="method-summary-table-tab0">
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#close()" class="member-name-link">close</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Closes the active VisionPortal camera stream if open.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.firstinspires.ftc.vision.apriltag.AprilTagProcessor</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAprilTagProcessor()" class="member-name-link">getAprilTagProcessor</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Gets the AprilTagProcessor instance used for tag detection.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBestCell(org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Color)" class="member-name-link">getBestCell</a><wbr>(<a href="Vision.Cell.Color.html" title="enum class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell.Color</a>&nbsp;color)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Evaluates detected AprilTag clusters and returns a <a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems"><code>Vision.Cell</code></a> for the best detected cluster.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;org.firstinspires.ftc.vision.apriltag.AprilTagDetection&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDetections()" class="member-name-link">getDetections</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Retrieves the current list of detected AprilTags.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.firstinspires.ftc.vision.VisionPortal</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getVisionPortal()" class="member-name-link">getVisionPortal</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Gets the VisionPortal instance managing the camera stream.</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static double[]</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#cameraToRobotCenter(org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc)" class="member-name-link">cameraToRobotCenter</a><wbr>(org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc&nbsp;ftcPose)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Converts camera-relative ftcPose into robot-center-relative [x, y, z] coordinates (inches).</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#init(com.qualcomm.robotcore.hardware.HardwareMap,org.firstinspires.ftc.robotcore.external.Telemetry)" class="member-name-link">init</a><wbr>(com.qualcomm.robotcore.hardware.HardwareMap&nbsp;hardwareMap,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#close()" class="member-name-link">close</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.firstinspires.ftc.vision.apriltag.AprilTagProcessor</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAprilTagProcessor()" class="member-name-link">getAprilTagProcessor</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBestCell(org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Color)" class="member-name-link">getBestCell</a><wbr>(<a href="Vision.Cell.Color.html" title="enum class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell.Color</a>&nbsp;color)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBlueAudienceCell()" class="member-name-link">getBlueAudienceCell</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;org.firstinspires.ftc.vision.apriltag.AprilTagDetection&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDetections()" class="member-name-link">getDetections</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRedAudienceCell()" class="member-name-link">getRedAudienceCell</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.firstinspires.ftc.vision.VisionPortal</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getVisionPortal()" class="member-name-link">getVisionPortal</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#init(com.qualcomm.robotcore.hardware.HardwareMap,org.firstinspires.ftc.robotcore.external.Telemetry)" class="member-name-link">init</a><wbr>(com.qualcomm.robotcore.hardware.HardwareMap&nbsp;hardwareMap,
  org.firstinspires.ftc.robotcore.external.Telemetry&nbsp;telemetry)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Initializes the AprilTag processor and VisionPortal camera stream.</div>
-</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isBlueAudienceScorable()" class="member-name-link">isBlueAudienceScorable</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isCellScorable(org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection)" class="member-name-link">isCellScorable</a><wbr>(org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection&nbsp;best)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isCellScorable(org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection)" class="member-name-link">isCellScorable</a><wbr>(org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection&nbsp;cluster)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isRedAudienceScorable()" class="member-name-link">isRedAudienceScorable</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>dev.nextftc.core.commands.Command</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#pauseStream()" class="member-name-link">pauseStream</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Determines whether an AprilTag cluster detection is in a scorable orientation.</div>
+<div class="block">NextFTC command to pause camera streaming once scoring is complete</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#periodic()" class="member-name-link">periodic</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Runs periodically to update telemetry with AprilTag and cluster detection metrics,
-including count, camera-relative XYZ position in inches, PRY rotation in degrees,
-and RBE metrics (range in inches, bearing in degrees, elevation in degrees).</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#rebuildPortal(com.qualcomm.robotcore.hardware.HardwareMap)" class="member-name-link">rebuildPortal</a><wbr>(com.qualcomm.robotcore.hardware.HardwareMap&nbsp;hardwareMap)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Builds or rebuilds the VisionPortal with current camera mounting offsets and intrinsics.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setEnableTelemetry(boolean)" class="member-name-link">setEnableTelemetry</a><wbr>(boolean&nbsp;enable)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -231,23 +281,90 @@ and RBE metrics (range in inches, bearing in degrees, elevation in degrees).</di
 </section>
 </li>
 <li>
-<section class="detail" id="CAMERA_TO_CENTER_X_INCHES">
-<h3>CAMERA_TO_CENTER_X_INCHES</h3>
+<section class="detail" id="CAMERA_WIDTH">
+<h3>CAMERA_WIDTH</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CAMERA_TO_CENTER_X_INCHES</span></div>
-<div class="block"><p>Positive x is to the robot's right. The current camera is mounted
-approximately 4 inches to the left of the robot center.
-This assumes the turret rotation axis is located at the center.</p>
-
-<p>This value should be replaced with the measured camera-lens to center_axis horizontal offset.</p></div>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">CAMERA_WIDTH</span></div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
 <ul class="tag-list">
-<li><a href="../../../../../constant-values.html#org.firstinspires.ftc.teamcode.subsystems.Vision.CAMERA_TO_CENTER_X_INCHES">Constant Field Values</a></li>
+<li><a href="../../../../../constant-values.html#org.firstinspires.ftc.teamcode.subsystems.Vision.CAMERA_WIDTH">Constant Field Values</a></li>
 </ul>
 </dd>
 </dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="CAMERA_HEIGHT">
+<h3>CAMERA_HEIGHT</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">CAMERA_HEIGHT</span></div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../constant-values.html#org.firstinspires.ftc.teamcode.subsystems.Vision.CAMERA_HEIGHT">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="LENS_FX">
+<h3>LENS_FX</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">LENS_FX</span></div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="LENS_FY">
+<h3>LENS_FY</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">LENS_FY</span></div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="LENS_CX">
+<h3>LENS_CX</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">LENS_CX</span></div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../constant-values.html#org.firstinspires.ftc.teamcode.subsystems.Vision.LENS_CX">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="LENS_CY">
+<h3>LENS_CY</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">LENS_CY</span></div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../constant-values.html#org.firstinspires.ftc.teamcode.subsystems.Vision.LENS_CY">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="CAMERA_TO_CENTER_X_INCHES">
+<h3>CAMERA_TO_CENTER_X_INCHES</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CAMERA_TO_CENTER_X_INCHES</span></div>
 </div>
 </section>
 </li>
@@ -255,18 +372,7 @@ This assumes the turret rotation axis is located at the center.</p>
 <section class="detail" id="CAMERA_TO_CENTER_Y_INCHES">
 <h3>CAMERA_TO_CENTER_Y_INCHES</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CAMERA_TO_CENTER_Y_INCHES</span></div>
-<div class="block"><p>Positive y is to the robot's front forward. The current camera is mounted
-approximately  the same forward/backward position to the robot center.
-This assumes the turret rotation axis is located at the center.</p></div>
-<dl class="notes">
-<dt>See Also:</dt>
-<dd>
-<ul class="tag-list">
-<li><a href="../../../../../constant-values.html#org.firstinspires.ftc.teamcode.subsystems.Vision.CAMERA_TO_CENTER_Y_INCHES">Constant Field Values</a></li>
-</ul>
-</dd>
-</dl>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CAMERA_TO_CENTER_Y_INCHES</span></div>
 </div>
 </section>
 </li>
@@ -274,18 +380,31 @@ This assumes the turret rotation axis is located at the center.</p></div>
 <section class="detail" id="CAMERA_TO_CENTER_Z_INCHES">
 <h3>CAMERA_TO_CENTER_Z_INCHES</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CAMERA_TO_CENTER_Z_INCHES</span></div>
-<div class="block"><p>Positive z is to the robot's up. The current camera is mounted
-approximately  the same leveled position to the robot center.
-This assumes the turret rotation axis is located at the center.</p></div>
-<dl class="notes">
-<dt>See Also:</dt>
-<dd>
-<ul class="tag-list">
-<li><a href="../../../../../constant-values.html#org.firstinspires.ftc.teamcode.subsystems.Vision.CAMERA_TO_CENTER_Z_INCHES">Constant Field Values</a></li>
-</ul>
-</dd>
-</dl>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CAMERA_TO_CENTER_Z_INCHES</span></div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="CAMERA_UPWARD_TILT_DEGREES">
+<h3>CAMERA_UPWARD_TILT_DEGREES</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CAMERA_UPWARD_TILT_DEGREES</span></div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="CAMERA_YAW_DEGREES">
+<h3>CAMERA_YAW_DEGREES</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CAMERA_YAW_DEGREES</span></div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="CAMERA_ROLL_DEGREES">
+<h3>CAMERA_ROLL_DEGREES</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CAMERA_ROLL_DEGREES</span></div>
 </div>
 </section>
 </li>
@@ -303,13 +422,24 @@ This assumes the turret rotation axis is located at the center.</p></div>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">init</span><wbr><span class="parameters">(com.qualcomm.robotcore.hardware.HardwareMap&nbsp;hardwareMap,
  org.firstinspires.ftc.robotcore.external.Telemetry&nbsp;telemetry)</span></div>
-<div class="block">Initializes the AprilTag processor and VisionPortal camera stream.
-Configures output units in inches and degrees with preset camera offset poses.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>hardwareMap</code> - the robot hardware map used to access "Webcam1"</dd>
-<dd><code>telemetry</code> - the telemetry instance for logging vision data</dd>
-</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="rebuildPortal(com.qualcomm.robotcore.hardware.HardwareMap)">
+<h3>rebuildPortal</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">rebuildPortal</span><wbr><span class="parameters">(com.qualcomm.robotcore.hardware.HardwareMap&nbsp;hardwareMap)</span></div>
+<div class="block">Builds or rebuilds the VisionPortal with current camera mounting offsets and intrinsics.
+Can be called from CameraCalibrationOpMode after live-tuning offsets.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setEnableTelemetry(boolean)">
+<h3>setEnableTelemetry</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setEnableTelemetry</span><wbr><span class="parameters">(boolean&nbsp;enable)</span></div>
 </div>
 </section>
 </li>
@@ -318,9 +448,6 @@ Configures output units in inches and degrees with preset camera offset poses.</
 <h3>periodic</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">periodic</span>()</div>
-<div class="block">Runs periodically to update telemetry with AprilTag and cluster detection metrics,
-including count, camera-relative XYZ position in inches, PRY rotation in degrees,
-and RBE metrics (range in inches, bearing in degrees, elevation in degrees).</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>periodic</code>&nbsp;in interface&nbsp;<code>dev.nextftc.core.subsystems.Subsystem</code></dd>
@@ -329,15 +456,44 @@ and RBE metrics (range in inches, bearing in degrees, elevation in degrees).</di
 </section>
 </li>
 <li>
-<section class="detail" id="getDetections()">
-<h3>getDetections</h3>
+<section class="detail" id="cameraToRobotCenter(org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc)">
+<h3>cameraToRobotCenter</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;org.firstinspires.ftc.vision.apriltag.AprilTagDetection&gt;</span>&nbsp;<span class="element-name">getDetections</span>()</div>
-<div class="block">Retrieves the current list of detected AprilTags.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>a list of <code>AprilTagDetection</code> objects, or an empty list if processor is null</dd>
-</dl>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">double[]</span>&nbsp;<span class="element-name">cameraToRobotCenter</span><wbr><span class="parameters">(org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc&nbsp;ftcPose)</span></div>
+<div class="block">Converts camera-relative ftcPose into robot-center-relative [x, y, z] coordinates (inches).
+Frame convention: +X = Right, +Y = Forward, +Z = Up from robot/turret center[cite: 7].</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="isRedAudienceScorable()">
+<h3>isRedAudienceScorable</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isRedAudienceScorable</span>()</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="isBlueAudienceScorable()">
+<h3>isBlueAudienceScorable</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isBlueAudienceScorable</span>()</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getRedAudienceCell()">
+<h3>getRedAudienceCell</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></span>&nbsp;<span class="element-name">getRedAudienceCell</span>()</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getBlueAudienceCell()">
+<h3>getBlueAudienceCell</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></span>&nbsp;<span class="element-name">getBlueAudienceCell</span>()</div>
 </div>
 </section>
 </li>
@@ -346,11 +502,14 @@ and RBE metrics (range in inches, bearing in degrees, elevation in degrees).</di
 <h3>getBestCell</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></span>&nbsp;<span class="element-name">getBestCell</span><wbr><span class="parameters">(<a href="Vision.Cell.Color.html" title="enum class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell.Color</a>&nbsp;color)</span></div>
-<div class="block">Evaluates detected AprilTag clusters and returns a <a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems"><code>Vision.Cell</code></a> for the best detected cluster.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>the best detected <a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems"><code>Vision.Cell</code></a> containing range (inches), bearing (degrees), elevation (degrees), or null if none detected</dd>
-</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getDetections()">
+<h3>getDetections</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;org.firstinspires.ftc.vision.apriltag.AprilTagDetection&gt;</span>&nbsp;<span class="element-name">getDetections</span>()</div>
 </div>
 </section>
 </li>
@@ -358,14 +517,16 @@ and RBE metrics (range in inches, bearing in degrees, elevation in degrees).</di
 <section class="detail" id="isCellScorable(org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection)">
 <h3>isCellScorable</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isCellScorable</span><wbr><span class="parameters">(org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection&nbsp;best)</span></div>
-<div class="block">Determines whether an AprilTag cluster detection is in a scorable orientation.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>best</code> - the <code>AprilTagClusterDetection</code> to check</dd>
-<dt>Returns:</dt>
-<dd>true if non-null, has pose information, and absolute roll angle is less than 90.0 degrees; false otherwise</dd>
-</dl>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isCellScorable</span><wbr><span class="parameters">(org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection&nbsp;cluster)</span></div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="pauseStream()">
+<h3>pauseStream</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">dev.nextftc.core.commands.Command</span>&nbsp;<span class="element-name">pauseStream</span>()</div>
+<div class="block">NextFTC command to pause camera streaming once scoring is complete</div>
 </div>
 </section>
 </li>
@@ -374,11 +535,6 @@ and RBE metrics (range in inches, bearing in degrees, elevation in degrees).</di
 <h3>getVisionPortal</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">org.firstinspires.ftc.vision.VisionPortal</span>&nbsp;<span class="element-name">getVisionPortal</span>()</div>
-<div class="block">Gets the VisionPortal instance managing the camera stream.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>the <code>VisionPortal</code> instance, or null if uninitialized</dd>
-</dl>
 </div>
 </section>
 </li>
@@ -387,11 +543,6 @@ and RBE metrics (range in inches, bearing in degrees, elevation in degrees).</di
 <h3>getAprilTagProcessor</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">org.firstinspires.ftc.vision.apriltag.AprilTagProcessor</span>&nbsp;<span class="element-name">getAprilTagProcessor</span>()</div>
-<div class="block">Gets the AprilTagProcessor instance used for tag detection.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>the <code>AprilTagProcessor</code> instance, or null if uninitialized</dd>
-</dl>
 </div>
 </section>
 </li>
@@ -400,7 +551,6 @@ and RBE metrics (range in inches, bearing in degrees, elevation in degrees).</di
 <h3>close</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">close</span>()</div>
-<div class="block">Closes the active VisionPortal camera stream if open.</div>
 </div>
 </section>
 </li>

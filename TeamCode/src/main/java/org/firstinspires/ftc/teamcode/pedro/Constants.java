@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-
+import org.firstinspires.ftc.teamcode.subsystems.Odom;
 /**
  * 
  */
@@ -93,7 +93,7 @@ public class Constants {
         c.globalDistanceUnit.set(DistanceUnit.MM);
         c.offsetUnits.set(DistanceUnit.MM);
     });
-    */
+
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
         c.name.set("odom");
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
@@ -107,6 +107,18 @@ public class Constants {
         //c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
         c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
         c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        c.globalDistanceUnit.set(DistanceUnit.INCH);
+        c.offsetUnits.set(DistanceUnit.INCH);
+    });
+    */
+
+    public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
+        c.name.set("odom");
+        c.podType.set(Odom.POD_TYPE);
+        c.xPodOffset.set(Odom.X_POD_OFFSET_INCHES);
+        c.yPodOffset.set(Odom.Y_POD_OFFSET_INCHES);
+        c.xPodDirection.set(Odom.X_POD_DIRECTION);
+        c.yPodDirection.set(Odom.Y_POD_DIRECTION);
         c.globalDistanceUnit.set(DistanceUnit.INCH);
         c.offsetUnits.set(DistanceUnit.INCH);
     });

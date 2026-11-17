@@ -59,14 +59,28 @@ loadScripts(document, 'script');</script>
 <li><a href="#field-detail" tabindex="0">Field Details</a>
 <ol class="toc-list">
 <li><a href="#INSTANCE" tabindex="0">INSTANCE</a></li>
+<li><a href="#POD_TYPE" tabindex="0">POD_TYPE</a></li>
+<li><a href="#X_POD_OFFSET_INCHES" tabindex="0">X_POD_OFFSET_INCHES</a></li>
+<li><a href="#Y_POD_OFFSET_INCHES" tabindex="0">Y_POD_OFFSET_INCHES</a></li>
+<li><a href="#X_POD_DIRECTION" tabindex="0">X_POD_DIRECTION</a></li>
+<li><a href="#Y_POD_DIRECTION" tabindex="0">Y_POD_DIRECTION</a></li>
 </ol>
 </li>
 <li><a href="#method-detail" tabindex="0">Method Details</a>
 <ol class="toc-list">
 <li><a href="#init(com.qualcomm.robotcore.hardware.HardwareMap,org.firstinspires.ftc.robotcore.external.Telemetry)" tabindex="0">init(HardwareMap, Telemetry)</a></li>
+<li><a href="#applyConfiguration()" tabindex="0">applyConfiguration()</a></li>
+<li><a href="#setEnableTelemetry(boolean)" tabindex="0">setEnableTelemetry(boolean)</a></li>
 <li><a href="#periodic()" tabindex="0">periodic()</a></li>
-<li><a href="#getPinpoint()" tabindex="0">getPinpoint()</a></li>
+<li><a href="#getXInches()" tabindex="0">getXInches()</a></li>
+<li><a href="#getYInches()" tabindex="0">getYInches()</a></li>
+<li><a href="#getHeadingDegrees()" tabindex="0">getHeadingDegrees()</a></li>
+<li><a href="#getHeadingRadians()" tabindex="0">getHeadingRadians()</a></li>
+<li><a href="#getPosition()" tabindex="0">getPosition()</a></li>
+<li><a href="#setPosition(double,double,double)" tabindex="0">setPosition(double, double, double)</a></li>
 <li><a href="#resetPosition()" tabindex="0">resetPosition()</a></li>
+<li><a href="#resetPositionCommand()" tabindex="0">resetPositionCommand()</a></li>
+<li><a href="#getPinpoint()" tabindex="0">getPinpoint()</a></li>
 </ol>
 </li>
 </ol>
@@ -89,6 +103,8 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">Odom</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements dev.nextftc.core.subsystems.Subsystem</span></div>
+<div class="block">Odometry subsystem wrapping the goBILDA Pinpoint Odometry Computer ("odom").
+Stores single-source-of-truth calibration constants shared with Pedro Pathing's Constants.java.</div>
 </div>
 </section>
 <section class="summary">
@@ -105,6 +121,21 @@ implements dev.nextftc.core.subsystems.Subsystem</span></div>
 <div class="col-first even-row-color"><code>static final <a href="Odom.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Odom</a></code></div>
 <div class="col-second even-row-color"><code><a href="#INSTANCE" class="member-name-link">INSTANCE</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static final com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.GoBildaOdometryPods</code></div>
+<div class="col-second odd-row-color"><code><a href="#POD_TYPE" class="member-name-link">POD_TYPE</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection</code></div>
+<div class="col-second even-row-color"><code><a href="#X_POD_DIRECTION" class="member-name-link">X_POD_DIRECTION</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static double</code></div>
+<div class="col-second odd-row-color"><code><a href="#X_POD_OFFSET_INCHES" class="member-name-link">X_POD_OFFSET_INCHES</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection</code></div>
+<div class="col-second even-row-color"><code><a href="#Y_POD_DIRECTION" class="member-name-link">Y_POD_DIRECTION</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static double</code></div>
+<div class="col-second odd-row-color"><code><a href="#Y_POD_OFFSET_INCHES" class="member-name-link">Y_POD_OFFSET_INCHES</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -119,19 +150,52 @@ implements dev.nextftc.core.subsystems.Subsystem</span></div>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.qualcomm.hardware.gobilda.GoBildaPinpointDriver</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPinpoint()" class="member-name-link">getPinpoint</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#applyConfiguration()" class="member-name-link">applyConfiguration</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Applies pod resolution, physical offsets, and encoder directions to the Pinpoint.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getHeadingDegrees()" class="member-name-link">getHeadingDegrees</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getHeadingRadians()" class="member-name-link">getHeadingRadians</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.qualcomm.hardware.gobilda.GoBildaPinpointDriver</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPinpoint()" class="member-name-link">getPinpoint</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.firstinspires.ftc.robotcore.external.navigation.Pose2D</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPosition()" class="member-name-link">getPosition</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getXInches()" class="member-name-link">getXInches</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getYInches()" class="member-name-link">getYInches</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#init(com.qualcomm.robotcore.hardware.HardwareMap,org.firstinspires.ftc.robotcore.external.Telemetry)" class="member-name-link">init</a><wbr>(com.qualcomm.robotcore.hardware.HardwareMap&nbsp;hardwareMap,
  org.firstinspires.ftc.robotcore.external.Telemetry&nbsp;telemetry)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Initializes the Pinpoint driver for TeleOp / standalone odometry tracking.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#periodic()" class="member-name-link">periodic</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#resetPosition()" class="member-name-link">resetPosition</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>dev.nextftc.core.commands.Command</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#resetPositionCommand()" class="member-name-link">resetPositionCommand</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setEnableTelemetry(boolean)" class="member-name-link">setEnableTelemetry</a><wbr>(boolean&nbsp;enable)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPosition(double,double,double)" class="member-name-link">setPosition</a><wbr>(double&nbsp;xInches,
+ double&nbsp;yInches,
+ double&nbsp;headingDegrees)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -160,6 +224,46 @@ implements dev.nextftc.core.subsystems.Subsystem</span></div>
 </div>
 </section>
 </li>
+<li>
+<section class="detail" id="POD_TYPE">
+<h3>POD_TYPE</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.GoBildaOdometryPods</span>&nbsp;<span class="element-name">POD_TYPE</span></div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="X_POD_OFFSET_INCHES">
+<h3>X_POD_OFFSET_INCHES</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">X_POD_OFFSET_INCHES</span></div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="Y_POD_OFFSET_INCHES">
+<h3>Y_POD_OFFSET_INCHES</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">Y_POD_OFFSET_INCHES</span></div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="X_POD_DIRECTION">
+<h3>X_POD_DIRECTION</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection</span>&nbsp;<span class="element-name">X_POD_DIRECTION</span></div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="Y_POD_DIRECTION">
+<h3>Y_POD_DIRECTION</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection</span>&nbsp;<span class="element-name">Y_POD_DIRECTION</span></div>
+</div>
+</section>
+</li>
 </ul>
 </section>
 </li>
@@ -174,11 +278,25 @@ implements dev.nextftc.core.subsystems.Subsystem</span></div>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">init</span><wbr><span class="parameters">(com.qualcomm.robotcore.hardware.HardwareMap&nbsp;hardwareMap,
  org.firstinspires.ftc.robotcore.external.Telemetry&nbsp;telemetry)</span></div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>hardwareMap</code> - </dd>
-<dd><code>telemetry</code> - </dd>
-</dl>
+<div class="block">Initializes the Pinpoint driver for TeleOp / standalone odometry tracking.
+Note: Do NOT call Odom.periodic() in Autonomous if Pedro Pathing's PinpointLocalizer is active.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="applyConfiguration()">
+<h3>applyConfiguration</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">applyConfiguration</span>()</div>
+<div class="block">Applies pod resolution, physical offsets, and encoder directions to the Pinpoint.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setEnableTelemetry(boolean)">
+<h3>setEnableTelemetry</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setEnableTelemetry</span><wbr><span class="parameters">(boolean&nbsp;enable)</span></div>
 </div>
 </section>
 </li>
@@ -195,13 +313,52 @@ implements dev.nextftc.core.subsystems.Subsystem</span></div>
 </section>
 </li>
 <li>
-<section class="detail" id="getPinpoint()">
-<h3>getPinpoint</h3>
+<section class="detail" id="getXInches()">
+<h3>getXInches</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">com.qualcomm.hardware.gobilda.GoBildaPinpointDriver</span>&nbsp;<span class="element-name">getPinpoint</span>()</div>
-<dl class="notes">
-<dt>Returns:</dt>
-</dl>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">getXInches</span>()</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getYInches()">
+<h3>getYInches</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">getYInches</span>()</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getHeadingDegrees()">
+<h3>getHeadingDegrees</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">getHeadingDegrees</span>()</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getHeadingRadians()">
+<h3>getHeadingRadians</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">getHeadingRadians</span>()</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getPosition()">
+<h3>getPosition</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">org.firstinspires.ftc.robotcore.external.navigation.Pose2D</span>&nbsp;<span class="element-name">getPosition</span>()</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setPosition(double,double,double)">
+<h3>setPosition</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setPosition</span><wbr><span class="parameters">(double&nbsp;xInches,
+ double&nbsp;yInches,
+ double&nbsp;headingDegrees)</span></div>
 </div>
 </section>
 </li>
@@ -210,6 +367,22 @@ implements dev.nextftc.core.subsystems.Subsystem</span></div>
 <h3>resetPosition</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">resetPosition</span>()</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="resetPositionCommand()">
+<h3>resetPositionCommand</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">dev.nextftc.core.commands.Command</span>&nbsp;<span class="element-name">resetPositionCommand</span>()</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getPinpoint()">
+<h3>getPinpoint</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">com.qualcomm.hardware.gobilda.GoBildaPinpointDriver</span>&nbsp;<span class="element-name">getPinpoint</span>()</div>
 </div>
 </section>
 </li>
