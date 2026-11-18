@@ -166,7 +166,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Determines whether there is enough remaining autonomous time
 to safely begin a proposed task.</div>
 </dd>
-<dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html#%3Cinit%3E(java.lang.String,double,double,double,boolean,double,double,double,double)" class="member-name-link">Cell(String, double, double, double, boolean, double, double, double, double)</a> - Constructor for class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></dt>
+<dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html#%3Cinit%3E(java.lang.String,double,double,double,boolean,double,double,double,double,double)" class="member-name-link">Cell(String, double, double, double, boolean, double, double, double, double, double)</a> - Constructor for class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/Hood.html#CHANGE_THRESHOLD" class="member-name-link">CHANGE_THRESHOLD</a> - Static variable in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Hood.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Hood</a></dt>
 <dd>&nbsp;</dd>
@@ -408,8 +408,26 @@ Planetary Gear Motor.</div>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html#getBearing()" class="member-name-link">getBearing()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html#getBestCell(org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Color)" class="member-name-link">getBestCell(Vision.Cell.Color)</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Returns the highest-confidence scorable cell matching the requested color (any location),
+or null if none is visible.</div>
+</dd>
+<dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html#getBestCell(org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Color,org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Location)" class="member-name-link">getBestCell(Vision.Cell.Color, Vision.Cell.Location)</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision</a></dt>
+<dd>
+<div class="block">Returns the highest-confidence scorable cell matching both color and location,
+or null if none is visible.</div>
+</dd>
+<dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html#getBestScorableCell()" class="member-name-link">getBestScorableCell()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision</a></dt>
+<dd>
+<div class="block">Returns the highest-confidence scorable cell detected (any color, any location), or null.</div>
+</dd>
+<dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html#getBestScorableCellNameAndColor()" class="member-name-link">getBestScorableCellNameAndColor()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision</a></dt>
+<dd>
+<div class="block">Returns the name and color of the best scorable cell (e.g., "RED_SCORING (RED)"), or null if none.</div>
+</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html#getBlueAudienceCell()" class="member-name-link">getBlueAudienceCell()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html#getBlueScoringCell()" class="member-name-link">getBlueScoringCell()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html#getColor()" class="member-name-link">getColor()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></dt>
 <dd>&nbsp;</dd>
@@ -463,6 +481,10 @@ Planetary Gear Motor.</div>
 </dd>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html#getName()" class="member-name-link">getName()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html#getNameAndColor()" class="member-name-link">getNameAndColor()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></dt>
+<dd>
+<div class="block">Returns formatted name and color of the detected cell, e.g.</div>
+</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/utility/AutoTimeManager.html#getParkDeadline()" class="member-name-link">getParkDeadline()</a> - Method in class org.firstinspires.ftc.teamcode.utility.<a href="org/firstinspires/ftc/teamcode/utility/AutoTimeManager.html" title="class in org.firstinspires.ftc.teamcode.utility">AutoTimeManager</a></dt>
 <dd>
 <div class="block">Calculates the latest autonomous time at which PARK should begin.</div>
@@ -471,6 +493,8 @@ Planetary Gear Motor.</div>
 <dd>
 <div class="block">Returns the configured PARK safety margin.</div>
 </dd>
+<dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html#getPercentFound()" class="member-name-link">getPercentFound()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/Odom.html#getPinpoint()" class="member-name-link">getPinpoint()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Odom.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Odom</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/Hood.html#getPosition()" class="member-name-link">getPosition()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Hood.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Hood</a></dt>
@@ -487,6 +511,8 @@ Planetary Gear Motor.</div>
 <dd>&nbsp;</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html#getRedAudienceCell()" class="member-name-link">getRedAudienceCell()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html#getRedScoringCell()" class="member-name-link">getRedScoringCell()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/utility/AutoTimeManager.html#getRemainingTime()" class="member-name-link">getRemainingTime()</a> - Method in class org.firstinspires.ftc.teamcode.utility.<a href="org/firstinspires/ftc/teamcode/utility/AutoTimeManager.html" title="class in org.firstinspires.ftc.teamcode.utility">AutoTimeManager</a></dt>
 <dd>
 <div class="block">Returns the amount of autonomous time remaining.</div>
@@ -499,6 +525,10 @@ Planetary Gear Motor.</div>
 <dd>&nbsp;</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html#getRoll()" class="member-name-link">getRoll()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html#getScorableCells()" class="member-name-link">getScorableCells()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision</a></dt>
+<dd>
+<div class="block">Returns all currently detected scorable cells (any color, any location).</div>
+</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/CompleteShooter.html#getStage()" class="member-name-link">getStage()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/CompleteShooter.html" title="class in org.firstinspires.ftc.teamcode.subsystems">CompleteShooter</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/utility/AutoTimeManager.html#getStateTime()" class="member-name-link">getStateTime()</a> - Method in class org.firstinspires.ftc.teamcode.utility.<a href="org/firstinspires/ftc/teamcode/utility/AutoTimeManager.html" title="class in org.firstinspires.ftc.teamcode.utility">AutoTimeManager</a></dt>
@@ -616,6 +646,10 @@ Planetary Gear Motor.</div>
 <dd>&nbsp;</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/Hood.html#hasCommand()" class="member-name-link">hasCommand()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Hood.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Hood</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html#hasScorableCell()" class="member-name-link">hasScorableCell()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision</a></dt>
+<dd>
+<div class="block">Returns true if any scorable cell (any color, any location) is currently detected.</div>
+</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/Hood.html#hasValidAngleCalibration()" class="member-name-link">hasValidAngleCalibration()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Hood.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Hood</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/Hood.html#hold()" class="member-name-link">hold()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Hood.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Hood</a></dt>
@@ -779,6 +813,8 @@ Planetary Gear Motor.</div>
 <dd>&nbsp;</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html#isBlueAudienceScorable()" class="member-name-link">isBlueAudienceScorable()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html#isBlueScoringScorable()" class="member-name-link">isBlueScoringScorable()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html#isCellScorable(org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection)" class="member-name-link">isCellScorable(AprilTagClusterDetection)</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/CompleteShooter.html#isCollecting()" class="member-name-link">isCollecting()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/CompleteShooter.html" title="class in org.firstinspires.ftc.teamcode.subsystems">CompleteShooter</a></dt>
@@ -808,6 +844,8 @@ Planetary Gear Motor.</div>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html#isRed()" class="member-name-link">isRed()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html#isRedAudienceScorable()" class="member-name-link">isRedAudienceScorable()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html#isRedScoringScorable()" class="member-name-link">isRedScoringScorable()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html#isScorable()" class="member-name-link">isScorable()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></dt>
 <dd>&nbsp;</dd>
@@ -1594,6 +1632,8 @@ after relocating the odometry pods on the chassis.</div>
 <dd>
 <div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
 </dd>
+<dt><a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html#toString()" class="member-name-link">toString()</a> - Method in class org.firstinspires.ftc.teamcode.subsystems.<a href="org/firstinspires/ftc/teamcode/subsystems/Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/Robot.html#transfer" class="member-name-link">transfer</a> - Variable in class org.firstinspires.ftc.teamcode.<a href="org/firstinspires/ftc/teamcode/Robot.html" title="class in org.firstinspires.ftc.teamcode">Robot</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="org/firstinspires/ftc/teamcode/subsystems/Transfer.html" class="type-name-link" title="class in org.firstinspires.ftc.teamcode.subsystems">Transfer</a> - Class in <a href="org/firstinspires/ftc/teamcode/subsystems/package-summary.html">org.firstinspires.ftc.teamcode.subsystems</a></dt>

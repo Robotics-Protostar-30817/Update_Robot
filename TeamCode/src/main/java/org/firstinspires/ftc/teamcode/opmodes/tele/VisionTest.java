@@ -5,51 +5,48 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
-import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 
-@TeleOp(name="VisionTest",group="Test")
-/**
- * 
- */
+@TeleOp(name = "VisionTest", group = "Test")
 public class VisionTest extends OpMode {
-    private final static Vision.Cell.Color focus= Vision.Cell.Color.RED;
+
     @Override
-    /**
-     * 
-     */
-    public void init(){
+    public void init() {
         Robot.INSTANCE.vision.init(hardwareMap, telemetry);
+        Robot.INSTANCE.vision.setEnableTelemetry(false);
         telemetry.addLine("Vision initialized");
-        telemetry.addLine("Press Start and point Webcam to a Cell");
+        telemetry.addLine("Press Start and point Webcam at any Cell");
         telemetry.update();
     }
 
     @Override
-    /**
-     * 
-     */
-    public void loop(){
-        //vision.periodic() displays the actual cluster pose returned by the SDK.
+    public void loop() {
         Robot.INSTANCE.vision.periodic();
-        Vision.Cell cell = Robot.INSTANCE.vision.getBestCell(focus);
-        if (cell!=null){
-            telemetry.addLine("== CELL ==");
-            telemetry.addData("Color",cell.getColor());
-            telemetry.addData("Location", cell.getLocation());
-            telemetry.addData("Scorable",cell.isScorable()?"YES":"NO");
+
+        Vision.Cell best = Robot.INSTANCE.vision.getBestScorableCell();
+        if (best != null) {
+            telemetry.addLine("== BEST SCORABLE CELL ==");
+            telemetry.addData("Name & Color", best.getNameAndColor());
+            telemetry.addData("Name", best.getName());
+            telemetry.addData("Color", best.getColor());
+            telemetry.addData("Location", best.getLocation());
+            telemetry.addData("Scorable", best.isScorable() ? "YES" : "NO");
             telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)",
-                    cell.getX(), cell.getY(), cell.getZ()));
-        }else{
-            telemetry.addLine("No Cell detected");
+                    best.getX(), best.getY(), best.getZ()));
+        } else {
+            telemetry.addLine("No Scorable Cell detected");
         }
+
+        telemetry.addLine("------------------------");
+        telemetry.addData("Total Scorable Visible", Robot.INSTANCE.vision.getScorableCells().size());
+        telemetry.addData("Red Audience", Robot.INSTANCE.vision.isRedAudienceScorable() ? "SCORABLE" : "--");
+        telemetry.addData("Red Scoring", Robot.INSTANCE.vision.isRedScoringScorable() ? "SCORABLE" : "--");
+        telemetry.addData("Blue Audience", Robot.INSTANCE.vision.isBlueAudienceScorable() ? "SCORABLE" : "--");
+        telemetry.addData("Blue Scoring", Robot.INSTANCE.vision.isBlueScoringScorable() ? "SCORABLE" : "--");
         telemetry.update();
     }
 
     @Override
-    /**
-     * 
-     */
-    public void stop(){
+    public void stop() {
         Robot.INSTANCE.vision.close();
     }
 }

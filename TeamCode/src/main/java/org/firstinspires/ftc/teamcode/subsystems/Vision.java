@@ -16,6 +16,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -27,6 +28,7 @@ import dev.nextftc.core.subsystems.Subsystem;
 /**
  * Vision subsystem tuned for the goBILDA Global Shutter USB Camera (3122-0004-0001).
  * Native sensor aspect ratio is 16:10 (1280x800 or 640x400).
+ * Identifies all four BIOBUZZ scorable AprilTagClusterDetections (Red/Blue x Audience/Scoring).
  */
 public class Vision implements Subsystem {
 
@@ -50,22 +52,22 @@ public class Vision implements Subsystem {
     public static final double LENS_CY = CAMERA_HEIGHT / 2.0;
 
     // -------------------------------------------------------------------------
-    // 2. PHYSICAL MOUNTING OFFSETS (Calibrate using CameraCalibrationOpMode)
+    // 2. PHYSICAL MOUNTING OFFSETS (Calibrate using CameraTest)
     // -------------------------------------------------------------------------
-    // FTC Robot Coordinate Frame: +X = Right, +Y = Forward, +Z = Up (from robot/turret center)[cite: 7]
+    // FTC Robot Coordinate Frame: +X = Right, +Y = Forward, +Z = Up (from robot/turret center)
     public static double CAMERA_TO_CENTER_X_INCHES = -3.5;
     public static double CAMERA_TO_CENTER_Y_INCHES = -4.25;
     public static double CAMERA_TO_CENTER_Z_INCHES = 12.0;
 
-    // Facing straight forward on the new mount (0.0 deg default; tune with CameraCalibrationOpMode)
+    // Facing straight forward on the new mount (0.0 deg default; tune with CameraTest)
     public static double CAMERA_UPWARD_TILT_DEGREES = 27.0;
     public static double CAMERA_YAW_DEGREES = 0.0;
     public static double CAMERA_ROLL_DEGREES = 0.0;
 
     // Cached frame data updated once per periodic() call
     private List<AprilTagDetection> cachedDetections = Collections.emptyList();
-    private Cell redAudienceCell = null;
-    private Cell blueAudienceCell = null;
+    private List<Cell> scorableCells = Collections.emptyList();
+    private Cell bestScorableCell = null;
     private boolean enableTelemetry = false;
 
     public static class Cell {
@@ -74,6 +76,7 @@ public class Vision implements Subsystem {
 
         private final String name;
         private final boolean scorable;
+        private final double percentFound;
         private final double range;
         private final double bearing;
         private final double elevation;
@@ -81,19 +84,21 @@ public class Vision implements Subsystem {
         private final Color color;
         private final Location location;
 
-        // Robot-center-relative coordinates in inches (+X Right, +Y Forward, +Z Up)[cite: 7]
+        // Robot-center-relative coordinates in inches (+X Right, +Y Forward, +Z Up)
         private final double x;
         private final double y;
         private final double z;
 
         public Cell(String name,
                     double robotX, double robotY, double robotZ,
-                    boolean scorable, double range, double bearing, double elevation, double roll) {
+                    boolean scorable, double percentFound,
+                    double range, double bearing, double elevation, double roll) {
             this.name = name;
             this.x = robotX;
             this.y = robotY;
             this.z = robotZ;
             this.scorable = scorable;
+            this.percentFound = percentFound;
             this.range = range;
             this.bearing = bearing;
             this.elevation = elevation;
@@ -122,6 +127,7 @@ public class Vision implements Subsystem {
         public double getY() { return y; }
         public double getZ() { return z; }
         public boolean isScorable() { return scorable; }
+        public double getPercentFound() { return percentFound; }
         public double getRange() { return range; }
         public double getBearing() { return bearing; }
         public double getElevation() { return elevation; }
@@ -132,6 +138,16 @@ public class Vision implements Subsystem {
         public boolean isScoring() { return location == Location.SCORING; }
         public boolean isRed() { return color == Color.RED; }
         public boolean isBlue() { return color == Color.BLUE; }
+
+        /** Returns formatted name and color of the detected cell, e.g. "RED_AUDIENCE (RED)" */
+        public String getNameAndColor() {
+            return String.format("%s (%s)", name != null ? name : "UNKNOWN", color.name());
+        }
+
+        @Override
+        public String toString() {
+            return getNameAndColor();
+        }
     }
 
     private Vision() {}
@@ -143,7 +159,7 @@ public class Vision implements Subsystem {
 
     /**
      * Builds or rebuilds the VisionPortal with current camera mounting offsets and intrinsics.
-     * Can be called from CameraCalibrationOpMode after live-tuning offsets.
+     * Can be called from CameraTest after live-tuning offsets.
      */
     public void rebuildPortal(HardwareMap hardwareMap) {
         if (visionPortal != null) {
@@ -158,7 +174,7 @@ public class Vision implements Subsystem {
                 0
         );
 
-        // In FTC SDK, Pitch = -90 is level forward; adding upward tilt pitches the lens up[cite: 7]
+        // In FTC SDK, Pitch = -90 is level forward; adding upward tilt pitches the lens up
         YawPitchRollAngles cameraAngles = new YawPitchRollAngles(
                 AngleUnit.DEGREES,
                 CAMERA_YAW_DEGREES,
@@ -190,16 +206,17 @@ public class Vision implements Subsystem {
         if (aprilTag == null) return;
 
         cachedDetections = aprilTag.getDetections();
-        redAudienceCell = findBestCell(Cell.Color.RED, Cell.Location.AUDIENCE);
-        blueAudienceCell = findBestCell(Cell.Color.BLUE, Cell.Location.AUDIENCE);
+        updateScorableCells();
 
         if (enableTelemetry && telemetry != null) {
-            telemetry.addData("AprilTags Detected", cachedDetections.size());
-            if (redAudienceCell != null) {
-                telemetry.addData("Red Audience Cell",
-                        "RobotXY=(%.1f, %.1f) Z=%.1f Range=%.1f Scorable=%b",
-                        redAudienceCell.getX(), redAudienceCell.getY(), redAudienceCell.getZ(),
-                        redAudienceCell.getRange(), redAudienceCell.isScorable());
+            telemetry.addData("Scorable Cells Detected", scorableCells.size());
+            if (bestScorableCell != null) {
+                telemetry.addData("Best Scorable Cell", "%s | Color=%s | RobotXY=(%.1f, %.1f) Z=%.1f",
+                        bestScorableCell.getName(),
+                        bestScorableCell.getColor(),
+                        bestScorableCell.getX(),
+                        bestScorableCell.getY(),
+                        bestScorableCell.getZ());
             }
             // Note: Do NOT call telemetry.update() inside Subsystem.periodic()
         }
@@ -207,7 +224,7 @@ public class Vision implements Subsystem {
 
     /**
      * Converts camera-relative ftcPose into robot-center-relative [x, y, z] coordinates (inches).
-     * Frame convention: +X = Right, +Y = Forward, +Z = Up from robot/turret center[cite: 7].
+     * Frame convention: +X = Right, +Y = Forward, +Z = Up from robot/turret center.
      */
     public static double[] cameraToRobotCenter(AprilTagPoseFtc ftcPose) {
         double camX = ftcPose.x;
@@ -217,7 +234,7 @@ public class Vision implements Subsystem {
         double pitch = Math.toRadians(CAMERA_UPWARD_TILT_DEGREES);
         double yaw = Math.toRadians(CAMERA_YAW_DEGREES);
 
-        // 1. Un-tilt camera upward pitch to get floor-parallel coordinates[cite: 7]
+        // 1. Un-tilt camera upward pitch to get floor-parallel coordinates
         double levelX = camX;
         double levelY = camY * Math.cos(pitch) - camZ * Math.sin(pitch);
         double levelZ = camY * Math.sin(pitch) + camZ * Math.cos(pitch);
@@ -230,8 +247,13 @@ public class Vision implements Subsystem {
         return new double[]{rx, ry, rz};
     }
 
-    private Cell findBestCell(Cell.Color targetColor, Cell.Location targetLocation) {
-        AprilTagClusterDetection best = null;
+    /**
+     * Scans all cached AprilTagClusterDetections, builds Cell objects for every scorable cell
+     * (Red/Blue x Audience/Scoring), and tracks the highest-confidence scorable cell.
+     */
+    private void updateScorableCells() {
+        List<Cell> foundCells = new ArrayList<>();
+        Cell best = null;
         double bestPercent = -1.0;
 
         for (AprilTagDetection detection : cachedDetections) {
@@ -243,54 +265,119 @@ public class Vision implements Subsystem {
             }
             if (!isCellScorable(cluster)) continue;
 
-            String upper = cluster.metadata.name.toUpperCase(Locale.ROOT);
-            boolean colorMatch = (targetColor == Cell.Color.RED && upper.contains("RED"))
-                    || (targetColor == Cell.Color.BLUE && upper.contains("BLUE"));
-            boolean locMatch = (targetLocation == Cell.Location.AUDIENCE && upper.contains("AUDIENCE"))
-                    || (targetLocation == Cell.Location.SCORING && upper.contains("SCORING"));
+            double[] robotCoords = cameraToRobotCenter(cluster.ftcPose);
+            Cell cell = new Cell(
+                    cluster.metadata.name,
+                    robotCoords[0], robotCoords[1], robotCoords[2],
+                    true,
+                    cluster.percentClusterFound,
+                    cluster.ftcPose.range,
+                    cluster.ftcPose.bearing,
+                    cluster.ftcPose.elevation,
+                    cluster.ftcPose.roll
+            );
+            foundCells.add(cell);
 
-            if (colorMatch && locMatch && cluster.percentClusterFound > bestPercent) {
+            if (cluster.percentClusterFound > bestPercent) {
                 bestPercent = cluster.percentClusterFound;
-                best = cluster;
+                best = cell;
             }
         }
 
-        if (best == null) return null;
-
-        // Transform camera-relative ftcPose into robot-center-relative coordinates
-        double[] robotCoords = cameraToRobotCenter(best.ftcPose);
-
-        return new Cell(
-                best.metadata.name,
-                robotCoords[0], robotCoords[1], robotCoords[2],
-                true,
-                best.ftcPose.range,
-                best.ftcPose.bearing,
-                best.ftcPose.elevation,
-                best.ftcPose.roll
-        );
+        scorableCells = foundCells;
+        bestScorableCell = best;
     }
 
+    /** Returns true if any scorable cell (any color, any location) is currently detected. */
+    public boolean hasScorableCell() {
+        return bestScorableCell != null && bestScorableCell.isScorable();
+    }
+
+    /** Returns the highest-confidence scorable cell detected (any color, any location), or null. */
+    public Cell getBestScorableCell() {
+        return bestScorableCell;
+    }
+
+    /** Returns the name and color of the best scorable cell (e.g., "RED_SCORING (RED)"), or null if none. */
+    public String getBestScorableCellNameAndColor() {
+        return (bestScorableCell != null) ? bestScorableCell.getNameAndColor() : null;
+    }
+
+    /** Returns all currently detected scorable cells (any color, any location). */
+    public List<Cell> getScorableCells() {
+        return scorableCells;
+    }
+
+    /**
+     * Returns the highest-confidence scorable cell matching the requested color (any location),
+     * or null if none is visible.
+     */
+    public Cell getBestCell(Cell.Color color) {
+        if (color == null) return bestScorableCell;
+
+        Cell bestMatch = null;
+        double bestPercent = -1.0;
+        for (Cell cell : scorableCells) {
+            if (cell.getColor() == color && cell.getPercentFound() > bestPercent) {
+                bestPercent = cell.getPercentFound();
+                bestMatch = cell;
+            }
+        }
+        return bestMatch;
+    }
+
+    /**
+     * Returns the highest-confidence scorable cell matching both color and location,
+     * or null if none is visible.
+     */
+    public Cell getBestCell(Cell.Color color, Cell.Location location) {
+        Cell bestMatch = null;
+        double bestPercent = -1.0;
+        for (Cell cell : scorableCells) {
+            boolean colorOk = (color == null || cell.getColor() == color);
+            boolean locOk = (location == null || cell.getLocation() == location);
+            if (colorOk && locOk && cell.getPercentFound() > bestPercent) {
+                bestPercent = cell.getPercentFound();
+                bestMatch = cell;
+            }
+        }
+        return bestMatch;
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. SPECIFIC CELL CONVENIENCE HELPERS (Red/Blue x Audience/Scoring)
+    // -------------------------------------------------------------------------
+
     public boolean isRedAudienceScorable() {
-        return redAudienceCell != null && redAudienceCell.isScorable();
+        return getBestCell(Cell.Color.RED, Cell.Location.AUDIENCE) != null;
     }
 
     public boolean isBlueAudienceScorable() {
-        return blueAudienceCell != null && blueAudienceCell.isScorable();
+        return getBestCell(Cell.Color.BLUE, Cell.Location.AUDIENCE) != null;
+    }
+
+    public boolean isRedScoringScorable() {
+        return getBestCell(Cell.Color.RED, Cell.Location.SCORING) != null;
+    }
+
+    public boolean isBlueScoringScorable() {
+        return getBestCell(Cell.Color.BLUE, Cell.Location.SCORING) != null;
     }
 
     public Cell getRedAudienceCell() {
-        return redAudienceCell;
+        return getBestCell(Cell.Color.RED, Cell.Location.AUDIENCE);
     }
 
     public Cell getBlueAudienceCell() {
-        return blueAudienceCell;
+        return getBestCell(Cell.Color.BLUE, Cell.Location.AUDIENCE);
     }
 
-    public Cell getBestCell(Cell.Color color) {
-        if (color == Cell.Color.RED) return redAudienceCell;
-        if (color == Cell.Color.BLUE) return blueAudienceCell;
-        return null;
+    public Cell getRedScoringCell() {
+        return getBestCell(Cell.Color.RED, Cell.Location.SCORING);
+    }
+
+    public Cell getBlueScoringCell() {
+        return getBestCell(Cell.Color.BLUE, Cell.Location.SCORING);
     }
 
     public List<AprilTagDetection> getDetections() {
