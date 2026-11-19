@@ -36,12 +36,17 @@ public class VisionTest extends OpMode {
             telemetry.addLine("No Scorable Cell detected");
         }
 
+        boolean redScoringScorable = Robot.INSTANCE.vision.getBestCell(
+                Vision.Cell.Color.RED, Vision.Cell.Location.SCORING) != null;
+        boolean blueScoringScorable = Robot.INSTANCE.vision.getBestCell(
+                Vision.Cell.Color.BLUE, Vision.Cell.Location.SCORING) != null;
+
         telemetry.addLine("------------------------");
         telemetry.addData("Total Scorable Visible", Robot.INSTANCE.vision.getScorableCells().size());
         telemetry.addData("Red Audience", Robot.INSTANCE.vision.isRedAudienceScorable() ? "SCORABLE" : "--");
-        telemetry.addData("Red Scoring", Robot.INSTANCE.vision.isRedScoringScorable() ? "SCORABLE" : "--");
+        telemetry.addData("Red Scoring", redScoringScorable ? "SCORABLE" : "--");
         telemetry.addData("Blue Audience", Robot.INSTANCE.vision.isBlueAudienceScorable() ? "SCORABLE" : "--");
-        telemetry.addData("Blue Scoring", Robot.INSTANCE.vision.isBlueScoringScorable() ? "SCORABLE" : "--");
+        telemetry.addData("Blue Scoring", blueScoringScorable ? "SCORABLE" : "--");
         telemetry.update();
     }
 

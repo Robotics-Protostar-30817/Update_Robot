@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.tele;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 //import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.CRServo;
+//import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.subsystems.Blocker;
@@ -69,7 +69,8 @@ public final class PollenCollectionTest extends OpMode {
         telemetry.addData("Lower intake power", "%.2f", transfer.getIntakePower());
         telemetry.addData("Lower motor velocity (ticks/s)", "%.1f", transfer.getVelocity1());
         telemetry.addData("Ramp position (commanded)", "%.2f", ramp.getPosition());
-        telemetry.addData("Ramp lowered (commanded)", "%.1f", ramp.isLowered());
+        //telemetry.addData("Ramp lowered (commanded)", "%.1f", ramp.isLowered());
+        telemetry.addData("Ramp lowered (commanded)", ramp.isLowered());
         telemetry.addData("Upper feed power (must be 0)", "%.2f", transfer.getFeedPower());
         telemetry.addData("Blocker closed (commanded)", !blocker.isOpen());
         telemetry.addLine("No sensor confirms the blocker physical position.");

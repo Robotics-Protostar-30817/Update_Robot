@@ -30,7 +30,6 @@ loadScripts(document, 'script');</script>
 <li><a href="../../../../index.html">Overview</a></li>
 <li class="nav-bar-cell1-rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
-<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
 <li><a href="../../../../index-all.html">Index</a></li>
 <li><a href="../../../../search.html">Search</a></li>
 <li><a href="../../../../help-doc.html#class">Help</a></li>
@@ -68,6 +67,14 @@ loadScripts(document, 'script');</script>
 <li><a href="#transfer" tabindex="0">transfer</a></li>
 <li><a href="#intakeRamp" tabindex="0">intakeRamp</a></li>
 <li><a href="#blocker" tabindex="0">blocker</a></li>
+<li><a href="#autoAim" tabindex="0">autoAim</a></li>
+<li><a href="#completeShooter" tabindex="0">completeShooter</a></li>
+</ol>
+</li>
+<li><a href="#method-detail" tabindex="0">Method Details</a>
+<ol class="toc-list">
+<li><a href="#initShooterAndVision(com.qualcomm.robotcore.hardware.HardwareMap,org.firstinspires.ftc.robotcore.external.Telemetry,org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Color,org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Location,boolean)" tabindex="0">initShooterAndVision(HardwareMap, Telemetry, Vision.Cell.Color, Vision.Cell.Location, boolean)</a></li>
+<li><a href="#shooterAndVisionSubsystems()" tabindex="0">shooterAndVisionSubsystems()</a></li>
 </ol>
 </li>
 </ol>
@@ -86,8 +93,7 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">Robot</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">Main robot container class implementing the singleton pattern.
-Provides centralized access to all robot subsystems including the drivetrain,
-odometry, vision processing, and shooter.</div>
+Provides centralized access to all robot subsystems.</div>
 </div>
 </section>
 <section class="summary">
@@ -101,35 +107,33 @@ odometry, vision processing, and shooter.</div>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Field</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>final <a href="subsystems/Blocker.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Blocker</a></code></div>
-<div class="col-second even-row-color"><code><a href="#blocker" class="member-name-link">blocker</a></code></div>
+<div class="col-first even-row-color"><code>final <a href="subsystems/AutoAim.html" title="class in org.firstinspires.ftc.teamcode.subsystems">AutoAim</a></code></div>
+<div class="col-second even-row-color"><code><a href="#autoAim" class="member-name-link">autoAim</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>final <a href="subsystems/Blocker.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Blocker</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#blocker" class="member-name-link">blocker</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>final <a href="subsystems/CompleteShooter.html" title="class in org.firstinspires.ftc.teamcode.subsystems">CompleteShooter</a></code></div>
+<div class="col-second even-row-color"><code><a href="#completeShooter" class="member-name-link">completeShooter</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>final <a href="subsystems/Drivetrain.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Drivetrain</a></code></div>
 <div class="col-second odd-row-color"><code><a href="#dt" class="member-name-link">dt</a></code></div>
-<div class="col-last odd-row-color">
-<div class="block">Drivetrain subsystem instance for robot motion and motor control.</div>
-</div>
+<div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>final <a href="subsystems/Flywheel.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Flywheel</a></code></div>
 <div class="col-second even-row-color"><code><a href="#flywheel" class="member-name-link">flywheel</a></code></div>
-<div class="col-last even-row-color">
-<div class="block">Shooter subsystem instance for flywheel launching mechanism.</div>
-</div>
+<div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>final <a href="subsystems/Hood.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Hood</a></code></div>
 <div class="col-second odd-row-color"><code><a href="#hood" class="member-name-link">hood</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static final <a href="Robot.html" title="class in org.firstinspires.ftc.teamcode">Robot</a></code></div>
 <div class="col-second even-row-color"><code><a href="#INSTANCE" class="member-name-link">INSTANCE</a></code></div>
-<div class="col-last even-row-color">
-<div class="block">Singleton instance of the robot container.</div>
-</div>
+<div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>final <a href="subsystems/IntakeRamp.html" title="class in org.firstinspires.ftc.teamcode.subsystems">IntakeRamp</a></code></div>
 <div class="col-second odd-row-color"><code><a href="#intakeRamp" class="member-name-link">intakeRamp</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>final <a href="subsystems/Odom.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Odom</a></code></div>
 <div class="col-second even-row-color"><code><a href="#odom" class="member-name-link">odom</a></code></div>
-<div class="col-last even-row-color">
-<div class="block">Odometry subsystem instance for robot tracking and localization.</div>
-</div>
+<div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>final <a href="subsystems/Transfer.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Transfer</a></code></div>
 <div class="col-second odd-row-color"><code><a href="#transfer" class="member-name-link">transfer</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
@@ -138,9 +142,7 @@ odometry, vision processing, and shooter.</div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>final <a href="subsystems/Vision.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision</a></code></div>
 <div class="col-second odd-row-color"><code><a href="#vision" class="member-name-link">vision</a></code></div>
-<div class="col-last odd-row-color">
-<div class="block">Vision subsystem instance for AprilTag target tracking and cell detection.</div>
-</div>
+<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -148,6 +150,30 @@ odometry, vision processing, and shooter.</div>
 <li>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
+<div id="method-summary-table">
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div id="method-summary-table.tabpanel" role="tabpanel" aria-labelledby="method-summary-table-tab0">
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Method</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#initShooterAndVision(com.qualcomm.robotcore.hardware.HardwareMap,org.firstinspires.ftc.robotcore.external.Telemetry,org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Color,org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Location,boolean)" class="member-name-link">initShooterAndVision</a><wbr>(com.qualcomm.robotcore.hardware.HardwareMap&nbsp;hardwareMap,
+ org.firstinspires.ftc.robotcore.external.Telemetry&nbsp;telemetry,
+ <a href="subsystems/Vision.Cell.Color.html" title="enum class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell.Color</a>&nbsp;alliance,
+ <a href="subsystems/Vision.Cell.Location.html" title="enum class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell.Location</a>&nbsp;targetLocation,
+ boolean&nbsp;useNextFtcScheduler)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Initializes Vision and all 7 shooter/intake actuators in one place.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>dev.nextftc.core.subsystems.Subsystem[]</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#shooterAndVisionSubsystems()" class="member-name-link">shooterAndVisionSubsystems</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns all Vision and Shooter subsystems for NextFTC SubsystemComponent registration.</div>
+</div>
+</div>
+</div>
+</div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#method-summary" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -167,7 +193,6 @@ odometry, vision processing, and shooter.</div>
 <h3>INSTANCE</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="Robot.html" title="class in org.firstinspires.ftc.teamcode">Robot</a></span>&nbsp;<span class="element-name">INSTANCE</span></div>
-<div class="block">Singleton instance of the robot container.</div>
 </div>
 </section>
 </li>
@@ -176,7 +201,6 @@ odometry, vision processing, and shooter.</div>
 <h3>dt</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="subsystems/Drivetrain.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Drivetrain</a></span>&nbsp;<span class="element-name">dt</span></div>
-<div class="block">Drivetrain subsystem instance for robot motion and motor control.</div>
 </div>
 </section>
 </li>
@@ -185,7 +209,6 @@ odometry, vision processing, and shooter.</div>
 <h3>odom</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="subsystems/Odom.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Odom</a></span>&nbsp;<span class="element-name">odom</span></div>
-<div class="block">Odometry subsystem instance for robot tracking and localization.</div>
 </div>
 </section>
 </li>
@@ -194,7 +217,6 @@ odometry, vision processing, and shooter.</div>
 <h3>vision</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="subsystems/Vision.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision</a></span>&nbsp;<span class="element-name">vision</span></div>
-<div class="block">Vision subsystem instance for AprilTag target tracking and cell detection.</div>
 </div>
 </section>
 </li>
@@ -203,7 +225,6 @@ odometry, vision processing, and shooter.</div>
 <h3>flywheel</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="subsystems/Flywheel.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Flywheel</a></span>&nbsp;<span class="element-name">flywheel</span></div>
-<div class="block">Shooter subsystem instance for flywheel launching mechanism.</div>
 </div>
 </section>
 </li>
@@ -244,6 +265,53 @@ odometry, vision processing, and shooter.</div>
 <h3>blocker</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="subsystems/Blocker.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Blocker</a></span>&nbsp;<span class="element-name">blocker</span></div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="autoAim">
+<h3>autoAim</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="subsystems/AutoAim.html" title="class in org.firstinspires.ftc.teamcode.subsystems">AutoAim</a></span>&nbsp;<span class="element-name">autoAim</span></div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="completeShooter">
+<h3>completeShooter</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="subsystems/CompleteShooter.html" title="class in org.firstinspires.ftc.teamcode.subsystems">CompleteShooter</a></span>&nbsp;<span class="element-name">completeShooter</span></div>
+</div>
+</section>
+</li>
+</ul>
+</section>
+</li>
+<!-- ============ METHOD DETAIL ========== -->
+<li>
+<section class="method-details" id="method-detail">
+<h2>Method Details</h2>
+<ul class="member-list">
+<li>
+<section class="detail" id="initShooterAndVision(com.qualcomm.robotcore.hardware.HardwareMap,org.firstinspires.ftc.robotcore.external.Telemetry,org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Color,org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Location,boolean)">
+<h3>initShooterAndVision</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">initShooterAndVision</span><wbr><span class="parameters">(com.qualcomm.robotcore.hardware.HardwareMap&nbsp;hardwareMap,
+ org.firstinspires.ftc.robotcore.external.Telemetry&nbsp;telemetry,
+ <a href="subsystems/Vision.Cell.Color.html" title="enum class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell.Color</a>&nbsp;alliance,
+ <a href="subsystems/Vision.Cell.Location.html" title="enum class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell.Location</a>&nbsp;targetLocation,
+ boolean&nbsp;useNextFtcScheduler)</span></div>
+<div class="block">Initializes Vision and all 7 shooter/intake actuators in one place.
+Safe to call in both Autonomous (alongside Pedro Pathing) and TeleOp.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="shooterAndVisionSubsystems()">
+<h3>shooterAndVisionSubsystems</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">dev.nextftc.core.subsystems.Subsystem[]</span>&nbsp;<span class="element-name">shooterAndVisionSubsystems</span>()</div>
+<div class="block">Returns all Vision and Shooter subsystems for NextFTC SubsystemComponent registration.</div>
 </div>
 </section>
 </li>

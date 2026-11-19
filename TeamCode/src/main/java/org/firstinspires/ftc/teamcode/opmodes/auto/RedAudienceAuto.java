@@ -1,10 +1,7 @@
-
 package org.firstinspires.ftc.teamcode.opmodes.auto;
-
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Pose;
-
 import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -16,143 +13,115 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.pedro.auto.DriveDiagnostics;
 import org.firstinspires.ftc.teamcode.pedro.auto.PathUtility;
 import org.firstinspires.ftc.teamcode.pedro.auto.RedAudiencePaths;
+import org.firstinspires.ftc.teamcode.subsystems.CompleteShooter;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
-import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.firstinspires.ftc.teamcode.pedro.auto.PathCompletionRecovery;
-
-import java.util.Locale;
 
 /**
- * Autonomous routine for one Red alliance robot operating in the
- * Red Audience quarter of the BIOBUZZ field.
- *
- * <p>Sequence:
- * <ol>
- *   <li>Shoot preloaded POLLEN into the Red Audience CELL.</li>
- *   <li>Drive to the Red Garden and collect up to four POLLEN.</li>
- *   <li>Return to the Red Audience shooting position.</li>
- *   <li>Wait until the CELL is scorable, then shoot.</li>
- *   <li>Drive to the nearby Flower and collect up to four POLLEN.</li>
- *   <li>Return to the Audience shooting position and shoot.</li>
- *   <li>Park before the 30-second autonomous period ends.</li>
- * </ol>
- *
- * <p>This initial implementation supports a navigation-only test mode.
- * Hardware-specific methods must be connected before live operation.
+ * State-machine Autonomous for Red Audience quarter using fixed shooting pose and RPM.
+ * Keeps AutoAim disabled; checks Vision for Red Audience scorability, spins flywheel
+ * from 800 RPM standby to SHOT_FLYWHEEL_RPM, opens blocker, and feeds POLLEN.
  */
 @Autonomous(name = "Red Audience Auto - State Machine", group = "Autonomous")
 public class RedAudienceAuto extends OpMode {
 
-    /**
-     * States used exclusively by this autonomous routine.
-     */
     private enum RAAutoState implements PathUtility.AutoState {
-        READY,//the robot is ready
-        INITIAL_APPROACH_Path,//from start pose to shoot pose
-        INITIAL_SHOOT, //shooting
-        DRIVE_TO_GARDEN_Path, //from shoot pose to garden pose
-        COLLECT_GARDEN,  //collecting from garden
-
-        GARDEN_TO_AUDIENCE_Path,//from garden pose to shoot pose
-        WAIT_FOR_AUDIENCE_SCORABLE,//waiting for audience to be ready
-        SHOOT_GARDEN_POLLEN,//shooting four pollens collected from garden
-
-        DRIVE_TO_FLOWER_Path,//from shoot pose to flower pose
-        COLLECT_FLOWER, //collecting from flower
-
-        FLOWER_TO_AUDIENCE_Path,//from flower pose to shoot pose
-        CONFIRM_AUDIENCE_SCORABLE,//should be a check
-        SHOOT_FLOWER_POLLEN,//shooting four pollens
-
-        DRIVE_TO_PARK_Path,//from shoot pose to park pose
-        EMERGENCY_PARK_Path,//from current pose to park pose
-        FINISHED,  //finish the whole process,
+        READY,
+        INITIAL_APPROACH_Path,
+        INITIAL_SHOOT,
+        DRIVE_TO_GARDEN_Path,
+        COLLECT_GARDEN,
+        GARDEN_TO_AUDIENCE_Path,
+        WAIT_FOR_AUDIENCE_SCORABLE,
+        SHOOT_GARDEN_POLLEN,
+        DRIVE_TO_FLOWER_Path,
+        COLLECT_FLOWER,
+        FLOWER_TO_AUDIENCE_Path,
+        CONFIRM_AUDIENCE_SCORABLE,
+        SHOOT_FLOWER_POLLEN,
+        DRIVE_TO_PARK_Path,
+        EMERGENCY_PARK_Path,
+        FINISHED,
         FAULT
     }
 
-    /**
-     * Set true for testing navigation without activating the
-     * intake or shooting mechanism.
-     */
+    /** Set false once fixed RPM/hood values are tuned to enable live intake & shooting. */
     private static final boolean NAVIGATION_ONLY = true;
     private static final String LOG_TAG = "RedAudienceAuto";
 
-    private final Vision cam = Robot.INSTANCE.vision;
-    private boolean audienceCellScorable = false;
-    private String audienceCellStatus = "Not checked";
-    //only when audience cell is ready again and all pollens are shot
-    private static boolean ENABLE_FLOWER_CYCLE= true;//test only the first part shoot and garden.
+    private final Robot robot = Robot.INSTANCE;
 
+    // Fixed shooting constants for shootPose (tune after testing)
+    private static final double SHOT_FLYWHEEL_RPM = 2800.0;
+    private static final double IDLE_FLYWHEEL_RPM = CompleteShooter.IDLE_FLYWHEEL_RPM; // 800.0
+    private static final double HOOD_SHOT_POSITION = 0.50;
+
+    private static boolean ENABLE_FLOWER_CYCLE = true;
     private static final boolean testDrive = true;
-    //total duration period
+    private static final boolean TEST_A = true;
+
     private static final double AUTO_SECONDS = 30.0;
-    private static final double SAFETY_MARGIN_SECONDS=1.0;
-    private static final double LOG_INTERVAL_SECONDS=0.1;
-    /**
-     * Reserve time for the final parking movement.
-     * Replace this estimate with a measured value.
-     */
+    private static final double SAFETY_MARGIN_SECONDS = 1.0;
+    private static final double LOG_INTERVAL_SECONDS = 0.1;
     private static final double PARK_RESERVE_SECONDS = 5.0;
 
-    /**
-     * Temporary collection duration for navigation-only testing.
-     * This is not a substitute for a full-capacity sensor.
-     */
+    // Navigation-only simulation timers
     private static final double TEST_COLLECTION = 2.0;
-    private static final double MAX_COLLECTION_TIME = 3.0;
-    private static final double DRIVE_TO_FLOWER_TIME = 2.0;
-    /**
-     * Temporary shooting duration for navigation-only testing.
-     */
     private static final double TEST_SHOOT = 1.0;
 
-    private static final double FLOWER_CYCLE=2*DRIVE_TO_FLOWER_TIME +
-            TEST_COLLECTION + TEST_SHOOT; //FULL CYCLE
-
-    //for testing, wait for audience cell to be ready 2-3 seconds
-    private static final double AUDIENCE_WAIT = 2.0;
-    private static final double MAX_AUDIENCE_WAIT = 3.0;
+    // Live hardware timers
+    private static final double MAX_COLLECTION_TIME = 3.0;
+    private static final double LIVE_FEED_DURATION_SECONDS = 1.6;
+    private static final double MAX_LIVE_SHOT_STATE_SECONDS = 4.0;
+    private static final double DRIVE_TO_FLOWER_TIME = 2.0;
+    private static final double FLOWER_CYCLE = 2 * DRIVE_TO_FLOWER_TIME + TEST_COLLECTION + TEST_SHOOT;
 
     private static final double MAX_POSITION_JUMP_INCHES = 12.0;
     private static final double MAX_HEADING_JUMP_DEGREES = 100.0;
 
-    private static final boolean TEST_A = true;//A
     private Follower follower;
     private DriveDiagnostics driveDiagnostics;
     private RAAutoState currentState;
     private RedAudiencePaths paths;
-    private boolean emergencyParkStarted;
     private boolean parkingPathStarted;
-    private boolean finished;
     private boolean started;
 
+    // Fixed-shot step tracking: 0 = waiting for flywheel RPM, 1 = opening blocker, 2 = feeding
+    private int shotStep = 0;
+    private boolean flywheelSpinningForShot = false;
+
     private Pose previousPose;
-    private String lastTransition ="Not Started";
-    private String transitionReason="";
-    private String faultReason="";
+    private String faultReason = "";
 
     private final ElapsedTime autoTimer = new ElapsedTime();
     private final ElapsedTime stateTimer = new ElapsedTime();
+    private final ElapsedTime shotStepTimer = new ElapsedTime();
     private final ElapsedTime logTimer = new ElapsedTime();
-
 
     @Override
     public void init() {
-        if(!NAVIGATION_ONLY){
-            throw new IllegalStateException("Connect shooter, vision, and intake adapters before live auto");
-        }
-
         follower = Constants.create(hardwareMap);
-        cam.init(hardwareMap,telemetry);//camera
-        PathUtility.info(LOG_TAG,"Vision initialized");
+
+        if (NAVIGATION_ONLY) {
+            robot.vision.init(hardwareMap, telemetry);
+            robot.vision.setEnableTelemetry(false);
+        } else {
+            robot.initShooterAndVision(
+                    hardwareMap,
+                    telemetry,
+                    Vision.Cell.Color.RED,
+                    Vision.Cell.Location.AUDIENCE,
+                    false
+            );
+            robot.turret.setTargetAngle(0.0);
+            robot.hood.setPosition(HOOD_SHOT_POSITION);
+            flywheelSpinningForShot = false;
+        }
+        PathUtility.info(LOG_TAG, "Robot subsystems initialized (NAVIGATION_ONLY=" + NAVIGATION_ONLY + ")");
+
         paths = new RedAudiencePaths();
         driveDiagnostics = new DriveDiagnostics(hardwareMap,
-                "leftFront","rightFront",
-                "leftBack","rightBack",LOG_TAG);
+                "leftFront", "rightFront",
+                "leftBack", "rightBack", LOG_TAG);
 
         if (follower != null) {
             follower.setPose(paths.startPose);
@@ -160,15 +129,13 @@ public class RedAudienceAuto extends OpMode {
 
         previousPose = follower.pose();
         currentState = RAAutoState.READY;
-
         started = false;
         parkingPathStarted = false;
 
-        telemetry.addLine("Red Audience Auto initialized");
+        telemetry.addLine("Red Audience Auto initialized (Fixed Pose Mode)");
         telemetry.addData("Navigation only", NAVIGATION_ONLY);
-        telemetry.addLine("Configure follower and field poses before running.");
-        telemetry.addData("Start X,Y","%.1f %.1f",follower.pose().x(),follower.pose().y());
-        telemetry.addData("Start heading","%.1f",Math.toDegrees(follower.pose().heading()));
+        telemetry.addData("Start X,Y", "%.1f %.1f", follower.pose().x(), follower.pose().y());
+        telemetry.addData("Start heading", "%.1f", Math.toDegrees(follower.pose().heading()));
         telemetry.update();
     }
 
@@ -178,15 +145,12 @@ public class RedAudienceAuto extends OpMode {
         stateTimer.reset();
         logTimer.reset();
         started = true;
-        PathUtility.info(LOG_TAG,"Diagnostic_Test= %s"+(TEST_A?"A":"B"));
-        changeState(RAAutoState.INITIAL_APPROACH_Path,"Start Auto");
+        PathUtility.info(LOG_TAG, "Diagnostic_Test= " + (TEST_A ? "A" : "B"));
+        changeState(RAAutoState.INITIAL_APPROACH_Path, "Start Auto");
     }
 
-    /**
-     * Detect the stationary state
-     */
-    private boolean isStationaryState(){
-        switch (currentState){
+    private boolean isStationaryState() {
+        switch (currentState) {
             case INITIAL_SHOOT:
             case COLLECT_FLOWER:
             case COLLECT_GARDEN:
@@ -200,74 +164,43 @@ public class RedAudienceAuto extends OpMode {
         }
     }
 
-    /**
-     * check whether the robot starts parking
-     */
-    private boolean parking(){
-        return currentState == RAAutoState.DRIVE_TO_PARK_Path ||
-                currentState == RAAutoState.EMERGENCY_PARK_Path;
+    private boolean isParkingState() {
+        return currentState == RAAutoState.DRIVE_TO_PARK_Path
+                || currentState == RAAutoState.EMERGENCY_PARK_Path;
     }
 
-    /**
-     * to stop the follower if the state is stationary.
-     * To detect whether the robot shaking
-     */
-    private void stopForStationaryState(String event){
+    private void stopForStationaryState(String event) {
         Pose previous = follower.pose();
-        if (testDrive){
-            driveDiagnostics.log(autoTimer.seconds(),
-                    currentState.name(),
-                    event+"Before Stop",follower);
+        if (testDrive) {
+            driveDiagnostics.log(autoTimer.seconds(), currentState.name(), event + "Before Stop", follower);
         }
-
         follower.stop();
         Pose after = follower.pose();
-
-        if (testDrive){
-            driveDiagnostics.log(autoTimer.seconds(),
-                    currentState.name(),
-                    event+"After Stop",follower);
+        if (testDrive) {
+            driveDiagnostics.log(autoTimer.seconds(), currentState.name(), event + "After Stop", follower);
+            driveDiagnostics.logPoseDifference(autoTimer.seconds(), currentState.name(), previous, after);
         }
-
-        if (testDrive){
-            driveDiagnostics.logPoseDifference(autoTimer.seconds(),
-                    currentState.name(),previous,after);
-        }
-
-        PathUtility.logPose(LOG_TAG,event,follower,autoTimer,currentState);
+        PathUtility.logPose(LOG_TAG, event, follower, autoTimer, currentState);
     }
 
-
-    /**
-     * Begin a path
-     */
-    private void beginPath(String name, Path path,Pose target){
-        PathUtility.info(LOG_TAG,PathUtility.pathStart(autoTimer.seconds(),name,target));
+    private void beginPath(String name, Path path, Pose target) {
+        PathUtility.info(LOG_TAG, PathUtility.pathStart(autoTimer.seconds(), name, target));
         follower.follow(path);
-        if (testDrive){
-            driveDiagnostics.log(autoTimer.seconds(),
-                    currentState.name(),
-                    name+"Path started",follower);
+        if (testDrive) {
+            driveDiagnostics.log(autoTimer.seconds(), currentState.name(), name + "Path started", follower);
         }
     }
 
-    /**
-     * Detects gross discontinuities in the Pedro pose, such as a Pinpoint
-     * read failure causing an unexpected (0,0,0) pose.
-     * @return true if the pose is finite and continuous
-     */
     private boolean validLocalization() {
         Pose now = follower.pose();
-        if (now == null || !Double.isFinite(now.x()) ||
-                !Double.isFinite(now.y()) || !Double.isFinite(now.heading())) return false;
+        if (now == null || !Double.isFinite(now.x())
+                || !Double.isFinite(now.y()) || !Double.isFinite(now.heading())) return false;
         if (previousPose != null) {
-            double distance = Math.hypot(now.x() - previousPose.x(),
-                    now.y() - previousPose.y());
+            double distance = Math.hypot(now.x() - previousPose.x(), now.y() - previousPose.y());
             double angle = Math.abs(Math.toDegrees(PathUtility.angleDifference(
                     now.heading(), previousPose.heading())));
             if (distance > MAX_POSITION_JUMP_INCHES || angle > MAX_HEADING_JUMP_DEGREES) {
-                RobotLog.ee(LOG_TAG,
-                        "LOCALIZATION_JUMP dx=%.2f headingDelta=%.1f", distance, angle);
+                RobotLog.ee(LOG_TAG, "LOCALIZATION_JUMP dx=%.2f headingDelta=%.1f", distance, angle);
                 return false;
             }
         }
@@ -275,200 +208,189 @@ public class RedAudienceAuto extends OpMode {
         return true;
     }
 
-    /**
-     * Immediately stops the follower on a detected safety fault.
-     * @param reason explanation included in RobotLog and telemetry
-     */
     private void fault(String reason) {
         faultReason = reason;
-        PathUtility.error(LOG_TAG,"Fault"+reason);
-        if (follower!=null) stopForStationaryState("Fault");
+        PathUtility.error(LOG_TAG, "Fault: " + reason);
+        stopCollection();
+        stopShooting();
+        if (follower != null) stopForStationaryState("Fault");
         currentState = RAAutoState.FAULT;
         driveDiagnostics.stopAllMotors();
     }
 
-    /** Displays current currentState, time, localization and fault reason. */
     private void showTelemetry() {
         telemetry.addData("State", currentState);
         telemetry.addData("Auto seconds", "%.2f / %.0f", autoTimer.seconds(), AUTO_SECONDS);
-        telemetry.addData("Time Elapsed","%.2f",stateTimer.seconds());
+        telemetry.addData("Time Elapsed", "%.2f", stateTimer.seconds());
         telemetry.addData("Remaining", "%.2f", Math.max(0, AUTO_SECONDS - autoTimer.seconds()));
         telemetry.addData("Navigation only", NAVIGATION_ONLY);
+        telemetry.addData("Audience Scorable", robot.vision.isRedAudienceScorable());
+        if (!NAVIGATION_ONLY) {
+            telemetry.addData("Flywheel Target / Actual RPM", "%.0f / %.0f",
+                    flywheelSpinningForShot ? SHOT_FLYWHEEL_RPM : IDLE_FLYWHEEL_RPM,
+                    robot.flywheel.getFlywheelRPM());
+            telemetry.addData("Shot Step", shotStep);
+        }
         telemetry.addData("Fault", faultReason);
         if (follower != null) {
-            Pose pose = follower.pose();
-            telemetry.addData("Pose: ",PathUtility.formatPose(pose));
-            //telemetry.addData("X", "%.2f", pose.x());
-            //telemetry.addData("Y", "%.2f", pose.y());
-            //telemetry.addData("Heading deg", "%.1f", Math.toDegrees(pose.heading()));
+            telemetry.addData("Pose", PathUtility.formatPose(follower.pose()));
             telemetry.addData("Path busy", follower.isBusy());
         }
         telemetry.update();
     }
 
-    /*
-     *check whether the robt starts Pathing state
-     */
-    private boolean isParkingState(){
-        return currentState == RAAutoState.DRIVE_TO_PARK_Path ||
-                currentState == RAAutoState.EMERGENCY_PARK_Path;
-    }
-    /**
-     * Determines whether the robot must begin parking.
-     *
-     * @return true when the parking reserve has been reached
-     */
     private boolean mustParkNow() {
-        return autoTimer.seconds()
-                >= AUTO_SECONDS - PARK_RESERVE_SECONDS;
+        return autoTimer.seconds() >= AUTO_SECONDS - PARK_RESERVE_SECONDS;
     }
 
     @Override
     public void loop() {
-        //already done the whole process
-       if (!started || currentState == RAAutoState.FAULT
-               || currentState == RAAutoState.FINISHED){
-           showTelemetry();
-           return;
-       }
+        if (!started || currentState == RAAutoState.FAULT || currentState == RAAutoState.FINISHED) {
+            showTelemetry();
+            return;
+        }
 
-       //stop the follower is the state is stationary
-        //only update when it is a path
-       if (TEST_A ||!isStationaryState()) {
-           follower.update();
-       }
+        // Update Vision and CompleteShooter every cycle
+        robot.vision.periodic();
+        if (!NAVIGATION_ONLY) {
+            robot.completeShooter.periodic();
+            if (flywheelSpinningForShot) {
+                robot.flywheel.setFlywheelRPM(SHOT_FLYWHEEL_RPM);
+                robot.flywheel.periodic();
+            }
+            robot.turret.periodic();
+            robot.hood.periodic();
+            robot.blocker.periodic();
+            robot.transfer.periodic();
+            robot.intakeRamp.periodic();
+        }
 
-       //log trouble
-       if(logTimer.seconds()>=LOG_INTERVAL_SECONDS){
-           if (testDrive){
-               String event = TEST_A? "Test A": "Test B";
-               driveDiagnostics.log(autoTimer.seconds(),
-                       currentState.name(),
-                       event+"Periodic",follower);
-           }
-           logTimer.reset();
-       }
+        if (TEST_A || !isStationaryState()) {
+            follower.update();
+        }
 
-       //check odom error
-       if (!validLocalization()){
-           fault("Pose discontinuity / invalid localization");
-           showTelemetry();
-           return;
-       }
+        if (logTimer.seconds() >= LOG_INTERVAL_SECONDS) {
+            if (testDrive) {
+                String event = TEST_A ? "Test A" : "Test B";
+                driveDiagnostics.log(autoTimer.seconds(), currentState.name(), event + "Periodic", follower);
+            }
+            logTimer.reset();
+        }
 
-       //30 seconds run out
-       if (autoTimer.seconds()>=AUTO_SECONDS){
-           changeState(RAAutoState.FINISHED,"30 seconds due");
-           showTelemetry();
-           return;
-       }
+        if (!validLocalization()) {
+            fault("Pose discontinuity / invalid localization");
+            showTelemetry();
+            return;
+        }
 
-        /*
-         * TODO: Update any subsystem that requires periodic updates,
-         * including your existing Vision and Shooter implementations.
-         */
-        //let shooting flower pollen complete, even before emergency parking
-        boolean protectedFlowerShooting = currentState == RAAutoState.SHOOT_FLOWER_POLLEN;
+        if (autoTimer.seconds() >= AUTO_SECONDS) {
+            changeState(RAAutoState.FINISHED, "30 seconds due");
+            showTelemetry();
+            return;
+        }
 
-        //emergency parking
-        if (!protectedFlowerShooting && !isParkingState() && mustParkNow()) {
-            PathUtility.warning(LOG_TAG,PathUtility.deadline(autoTimer.seconds(),
-                    AUTO_SECONDS-autoTimer.seconds(),PARK_RESERVE_SECONDS));
+        boolean protectedActiveShooting = (currentState == RAAutoState.SHOOT_GARDEN_POLLEN
+                || currentState == RAAutoState.SHOOT_FLOWER_POLLEN)
+                && (NAVIGATION_ONLY || shotStep == 2);
+
+        if (!protectedActiveShooting && !isParkingState() && mustParkNow()) {
+            PathUtility.warning(LOG_TAG, PathUtility.deadline(autoTimer.seconds(),
+                    AUTO_SECONDS - autoTimer.seconds(), PARK_RESERVE_SECONDS));
             changeState(RAAutoState.EMERGENCY_PARK_Path, "Parking Time Reserved");
             showTelemetry();
             return;
         }
 
-
         double elapsed = stateTimer.seconds();
-        boolean pathComplete = elapsed>=0.05 && !follower.isBusy();
+        boolean pathComplete = elapsed >= 0.05 && !follower.isBusy();
 
         switch (currentState) {
             case INITIAL_APPROACH_Path:
-                if(pathComplete) changeState(RAAutoState.INITIAL_SHOOT,"Ready to Shoot");
+                if (pathComplete) changeState(RAAutoState.INITIAL_SHOOT, "Ready to Shoot");
                 break;
+
             case INITIAL_SHOOT:
                 if (shootingFinished()) {
-                    changeState(RAAutoState.DRIVE_TO_GARDEN_Path,"Shoot Completed");
-                }
-                break;
-            case DRIVE_TO_GARDEN_Path:
-                if (pathComplete) {
-                    changeState(RAAutoState.COLLECT_GARDEN,"Arrived at Garden");
-                }
-                break;
-            case COLLECT_GARDEN:
-                if (collectionFinished()) {
-                    //stopCollectionGarden();
-                    changeState(RAAutoState.GARDEN_TO_AUDIENCE_Path,"Garden Collection Completed.");
-                }
-                break;
-            case GARDEN_TO_AUDIENCE_Path:
-                if (pathComplete) {
-                    changeState(RAAutoState.WAIT_FOR_AUDIENCE_SCORABLE,"Arrived at Shooting pose");
+                    stopShooting();
+                    changeState(RAAutoState.DRIVE_TO_GARDEN_Path, "Shoot Completed");
                 }
                 break;
 
-            case WAIT_FOR_AUDIENCE_SCORABLE:
-                if (isAudienceCellScorable()){
-                    changeState(RAAutoState.SHOOT_GARDEN_POLLEN,"Audience Cell Ready");
-                }else if (!hasTimeFor(TEST_SHOOT,PARK_RESERVE_SECONDS)){
-                    changeState(RAAutoState.EMERGENCY_PARK_Path,"Audience Cell Not Ready, go park");
+            case DRIVE_TO_GARDEN_Path:
+                if (pathComplete) changeState(RAAutoState.COLLECT_GARDEN, "Arrived at Garden");
+                break;
+
+            case COLLECT_GARDEN:
+                if (collectionFinished()) {
+                    stopCollection();
+                    changeState(RAAutoState.GARDEN_TO_AUDIENCE_Path, "Garden Collection Completed");
                 }
                 break;
+
+            case GARDEN_TO_AUDIENCE_Path:
+                if (pathComplete) changeState(RAAutoState.WAIT_FOR_AUDIENCE_SCORABLE, "Arrived at Shooting pose");
+                break;
+
+            case WAIT_FOR_AUDIENCE_SCORABLE:
+                if (isAudienceCellScorable()) {
+                    changeState(RAAutoState.SHOOT_GARDEN_POLLEN, "Audience Cell Ready");
+                } else if (!hasTimeFor(TEST_SHOOT, PARK_RESERVE_SECONDS)) {
+                    changeState(RAAutoState.EMERGENCY_PARK_Path, "Audience Cell Not Ready, go park");
+                }
+                break;
+
             case SHOOT_GARDEN_POLLEN:
                 if (shootingFinished()) {
+                    stopShooting();
                     if (canAttemptFlowerCycle()) {
-                        changeState(RAAutoState.DRIVE_TO_FLOWER_Path,"Shooting garden pollen finished");
-                    }else{
-                        changeState(RAAutoState.EMERGENCY_PARK_Path, "no time for flower collection");
+                        changeState(RAAutoState.DRIVE_TO_FLOWER_Path, "Shooting garden pollen finished");
+                    } else {
+                        changeState(RAAutoState.EMERGENCY_PARK_Path, "No time for flower collection");
                     }
                 }
                 break;
 
             case DRIVE_TO_FLOWER_Path:
-                if (pathComplete) {
-                    changeState(RAAutoState.COLLECT_FLOWER,"Arrived at Flower");
-                }
+                if (pathComplete) changeState(RAAutoState.COLLECT_FLOWER, "Arrived at Flower");
                 break;
 
             case COLLECT_FLOWER:
                 if (collectionFinished()) {
-                    //stopFlowerCollection();
-                    changeState(RAAutoState.FLOWER_TO_AUDIENCE_Path,"Collection Flower finished");
+                    stopCollection();
+                    changeState(RAAutoState.FLOWER_TO_AUDIENCE_Path, "Collection Flower finished");
                 }
                 break;
 
             case FLOWER_TO_AUDIENCE_Path:
-                if (pathComplete){
-                    changeState(RAAutoState.CONFIRM_AUDIENCE_SCORABLE,"Arrived at Audience");
-                }
+                if (pathComplete) changeState(RAAutoState.CONFIRM_AUDIENCE_SCORABLE, "Arrived at Audience");
                 break;
+
             case CONFIRM_AUDIENCE_SCORABLE:
                 if (isAudienceCellScorable()) {
-                    if (hasTimeFor(TEST_SHOOT,PARK_RESERVE_SECONDS)) {
-                        changeState(RAAutoState.SHOOT_FLOWER_POLLEN,"Audience Cell Ready for shooting");
-                    }else{
-                        changeState(RAAutoState.EMERGENCY_PARK_Path,"No time to shoot, emergency park");
+                    if (hasTimeFor(TEST_SHOOT, PARK_RESERVE_SECONDS)) {
+                        changeState(RAAutoState.SHOOT_FLOWER_POLLEN, "Audience Cell Ready for shooting");
+                    } else {
+                        changeState(RAAutoState.EMERGENCY_PARK_Path, "No time to shoot, emergency park");
                     }
+                } else if (!hasTimeFor(TEST_SHOOT, PARK_RESERVE_SECONDS)) {
+                    changeState(RAAutoState.EMERGENCY_PARK_Path, "Audience Cell not scorable in time");
                 }
                 break;
+
             case SHOOT_FLOWER_POLLEN:
                 if (shootingFinished()) {
-                    changeState(RAAutoState.DRIVE_TO_PARK_Path,"Finish last shooting, Go Park");
+                    stopShooting();
+                    changeState(RAAutoState.DRIVE_TO_PARK_Path, "Finish last shooting, Go Park");
                 }
                 break;
 
             case DRIVE_TO_PARK_Path:
-                if (parkingPathStarted && pathComplete) {
-                    changeState(RAAutoState.FINISHED,"complete the auto");
-                }
-                break;
             case EMERGENCY_PARK_Path:
                 if (parkingPathStarted && pathComplete) {
-                    changeState(RAAutoState.FINISHED,"Complete the auto with emergency parking");
+                    changeState(RAAutoState.FINISHED, "Auto completed");
                 }
                 break;
+
             case FINISHED:
                 break;
         }
@@ -476,289 +398,206 @@ public class RedAudienceAuto extends OpMode {
         showTelemetry();
     }
 
-    /**
-     * Changes the autonomous state and resets its elapsed time.
-     *
-     * @param nextState state to execute on the next loop
-     */
     private void changeState(RAAutoState nextState, String reason) {
+        if (currentState == RAAutoState.FINISHED || currentState == RAAutoState.FAULT) return;
+        if (isParkingState() && nextState != RAAutoState.FINISHED && nextState != RAAutoState.FAULT) return;
 
-        if (currentState == RAAutoState.FINISHED ||
-        currentState== RAAutoState.FAULT) {return;}
-
-        if(parking() &&nextState != RAAutoState.FINISHED
-                && nextState!=RAAutoState.FAULT){
-
-            return;//do not interrupt parking to earn points
-        }
-
-        PathUtility.info(LOG_TAG,
-                PathUtility.stateChange(autoTimer.seconds(),currentState,
-                        nextState,reason));
-        //stopCollection();
-        //stopShooting();
+        PathUtility.info(LOG_TAG, PathUtility.stateChange(autoTimer.seconds(), currentState, nextState, reason));
 
         currentState = nextState;
         stateTimer.reset();
+        shotStep = 0;
 
-        if(isStationaryState()){
+        if (isStationaryState()) {
             stopForStationaryState("Stationary State Entry");
         }
 
-        switch(nextState){
+        switch (nextState) {
             case INITIAL_APPROACH_Path:
-                //follower.follow(paths.initialApproach);
-                beginPath("Initial Approach",paths.initialApproach,
-                        paths.shootPose);
+                // Pre-spin flywheel during approach
+                flywheelSpinningForShot = true;
+                beginPath("Initial Approach", paths.initialApproach, paths.shootPose);
                 break;
+
             case INITIAL_SHOOT:
             case SHOOT_FLOWER_POLLEN:
             case SHOOT_GARDEN_POLLEN:
                 beginShooting();
                 break;
+
             case DRIVE_TO_GARDEN_Path:
-                //follower.follow(paths.driveToGarden);
-                beginPath("Drive to Garden",
-                        paths.driveToGarden,paths.gardenPose);
+                flywheelSpinningForShot = false;
+                beginPath("Drive to Garden", paths.driveToGarden, paths.gardenPose);
                 break;
+
             case COLLECT_FLOWER:
                 beginCollectionFlower();
                 break;
+
             case COLLECT_GARDEN:
                 beginCollectionGarden();
                 break;
+
             case GARDEN_TO_AUDIENCE_Path:
-                //follower.follow(paths.gardenToAudience);
-                beginPath("Garden to Audience",paths.gardenToAudience,
-                        paths.shootPose);
+                flywheelSpinningForShot = true;
+                beginPath("Garden to Audience", paths.gardenToAudience, paths.shootPose);
                 break;
+
             case DRIVE_TO_FLOWER_Path:
-                //follower.follow(paths.driveToFlower);
-                beginPath("Drive to Flower",paths.driveToFlower,paths.flowerPose);
+                flywheelSpinningForShot = false;
+                beginPath("Drive to Flower", paths.driveToFlower, paths.flowerPose);
                 break;
+
             case FLOWER_TO_AUDIENCE_Path:
-                //follower.follow(paths.flowerToAudience);
-                beginPath("Flower to Audience",paths.flowerToAudience,paths.shootPose);
+                flywheelSpinningForShot = true;
+                beginPath("Flower to Audience", paths.flowerToAudience, paths.shootPose);
                 break;
+
             case EMERGENCY_PARK_Path:
-                //follower.stop();
+                flywheelSpinningForShot = false;
+                stopCollection();
+                stopShooting();
                 stopForStationaryState("Emergency Park");
                 Pose current = follower.pose();
-                if (current == null){
+                if (current == null) {
                     fault("No pose for emergency park");
                     return;
                 }
                 parkingPathStarted = true;
-                beginPath("Emergency Park",
-                        paths.emergencyPark(current),
-                        paths.parkPose);
-                //follower.follow(parkingPath);
+                beginPath("Emergency Park", paths.emergencyPark(current), paths.parkPose);
                 break;
+
             case DRIVE_TO_PARK_Path:
-
+                flywheelSpinningForShot = false;
+                stopCollection();
+                stopShooting();
                 parkingPathStarted = true;
-                //follower.follow(paths.driveToPark);
-                beginPath("Drive to Park",
-                        paths.driveToPark,paths.parkPose);
+                beginPath("Drive to Park", paths.driveToPark, paths.parkPose);
                 break;
-            case WAIT_FOR_AUDIENCE_SCORABLE:
-            //case WAIT_FOR_AUDIENCE_AGAIN:
-            case CONFIRM_AUDIENCE_SCORABLE:
-                PathUtility.info(LOG_TAG,"Waiting for scorable Audience cell"+nextState);
-                PathUtility.logPose(LOG_TAG,"Cell Wait start",follower,autoTimer,currentState);
 
+            case WAIT_FOR_AUDIENCE_SCORABLE:
+            case CONFIRM_AUDIENCE_SCORABLE:
+                flywheelSpinningForShot = true;
+                PathUtility.info(LOG_TAG, "Waiting for scorable Red Audience cell: " + nextState);
+                PathUtility.logPose(LOG_TAG, "Cell Wait start", follower, autoTimer, currentState);
                 break;
+
             case FINISHED:
-                if(testDrive){
-                    driveDiagnostics.log(autoTimer.seconds(),
-                            currentState.name(),
-                            "In finished, before calling stop",follower);
+                flywheelSpinningForShot = false;
+                stopCollection();
+                stopShooting();
+                if (testDrive) {
+                    driveDiagnostics.log(autoTimer.seconds(), currentState.name(),
+                            "In finished, before calling stop", follower);
                 }
                 stopForStationaryState("Finished");
                 follower.update();
-                if(testDrive)
-                {
-                    driveDiagnostics.log(autoTimer.seconds(),
-                            currentState.name(),
-                            "In finished, after calling stop",follower);
+                if (testDrive) {
+                    driveDiagnostics.log(autoTimer.seconds(), currentState.name(),
+                            "In finished, after calling stop", follower);
                     driveDiagnostics.stopAllMotors();
                 }
-                finished = true;
                 break;
+
             default:
                 break;
         }
     }
 
-
-    /**
-     * Determines whether there is sufficient time to attempt
-     * the optional Flower collection and shooting cycle.
-     *
-     * @return true if the optional cycle may be attempted
-     */
-    private boolean canAttemptFlowerCycle(){
-        boolean restTask = hasTimeFor(FLOWER_CYCLE,PARK_RESERVE_SECONDS);
-        return ENABLE_FLOWER_CYCLE && restTask;
+    private boolean canAttemptFlowerCycle() {
+        return ENABLE_FLOWER_CYCLE && hasTimeFor(FLOWER_CYCLE, PARK_RESERVE_SECONDS);
     }
-    /**
-     * Starts the shooting operation.
-     */
+
     private void beginShooting() {
-
-        if (NAVIGATION_ONLY) {
-            return;
-        }
-
-        /*
-         * TODO: Connect your existing Shooter subsystem.
-         * AprilTagCluster is detected as scorable
-         * Aim turret using Vision CELL X/Y.
-         * Spin up flywheel.
-         * Feed POLLEN sequentially.
-         * Stop if CELL becomes unscorable.
-         */
+        if (NAVIGATION_ONLY) return;
+        shotStep = 0;
+        flywheelSpinningForShot = true;
+        robot.flywheel.setFlywheelRPM(SHOT_FLYWHEEL_RPM);
     }
 
-    /**
-     * Checks whether the current shooting operation is complete.
-     *
-     * @return true when shooting is finished
-     */
     private boolean shootingFinished() {
-
         if (NAVIGATION_ONLY) {
             return stateTimer.seconds() >= TEST_SHOOT;
         }
 
-        /*
-         * TODO: Query your actual shooting controller.
-         * Do not use a fixed timer to assume four shots succeeded.
-         */
-        return false;
+        if (shotStep == 0) {
+            if (robot.flywheel.isReadyToShoot()) {
+                robot.blocker.open();
+                shotStepTimer.reset();
+                shotStep = 1;
+            }
+        } else if (shotStep == 1) {
+            if (robot.blocker.isReady()
+                    && shotStepTimer.seconds() >= CompleteShooter.BLOCKER_OPEN_SECONDS) {
+                robot.transfer.setFeedPower(CompleteShooter.FEED_POWER);
+                shotStepTimer.reset();
+                shotStep = 2;
+            }
+        } else if (shotStep == 2) {
+            if (shotStepTimer.seconds() >= LIVE_FEED_DURATION_SECONDS) {
+                return true;
+            }
+            if (!isAudienceCellScorable()) {
+                return true;
+            }
+        }
+
+        return stateTimer.seconds() >= MAX_LIVE_SHOT_STATE_SECONDS;
     }
 
-    /**
-     * Stops the shooting mechanism.
-     */
     private void stopShooting() {
         if (NAVIGATION_ONLY) return;
-        /*
-         * TODO: Stop the feeder and flywheel safely.
-         */
+        flywheelSpinningForShot = false;
+        shotStep = 0;
+        robot.transfer.stopFeed();
+        robot.blocker.close();
     }
 
-    /**
-     * Starts the POLLEN intake from Garden.
-     */
     private void beginCollectionGarden() {
-
-        if (NAVIGATION_ONLY) {
-            return;
-        }
-
-        /*
-         * TODO: Activate the intake mechanism.
-         */
+        if (NAVIGATION_ONLY) return;
+        robot.completeShooter.startCollecting();
     }
 
-    /**
-     * Starts the POLLEN intake from Flower.
-     */
     private void beginCollectionFlower() {
-
-        if (NAVIGATION_ONLY) {
-            return;
-        }
-
-        /*
-         * TODO: Activate the intake mechanism.
-         */
+        if (NAVIGATION_ONLY) return;
+        robot.completeShooter.startCollecting();
     }
 
-    /**
-     * Checks whether collection has finished.
-     *
-     * @return true when full or a collection timeout is reached
-     */
     private boolean collectionFinished() {
-
         if (NAVIGATION_ONLY) {
             return stateTimer.seconds() >= TEST_COLLECTION;
         }
-
-        /*
-         * TODO: Return true when the robot is full
-         * (maximum four POLLEN) or the collection timeout expires.
-         */
-        return stateTimer.seconds()>=MAX_COLLECTION_TIME;
+        return stateTimer.seconds() >= MAX_COLLECTION_TIME;
     }
 
-    /**
-     * Stops the POLLEN intake.
-     */
     private void stopCollection() {
         if (NAVIGATION_ONLY) return;
-        /*
-         * TODO: Stop the intake motor.
-         */
+        robot.completeShooter.stopCollecting();
     }
 
-    /**
-     * Use the current Vision AprilTagCluster detection to confirm the
-     * Red Audience cell is scorable.
-     * A missing detection is treated as not scorable.
-     * @return true if the cell is scorable
-     */
-    private boolean isAudienceCellScorable(){
-        //will change to vision detection
-        //return stateTimer.seconds() >= SIMULATED_SCORABLE_WAIT_SECONDS;
-        audienceCellScorable = false;
-        audienceCellStatus = "No scorable red scoring cluster";
-        for(AprilTagDetection detection: cam.getDetections()){
-            if(!(detection instanceof AprilTagClusterDetection)) continue;
-            AprilTagClusterDetection cluster = (AprilTagClusterDetection) detection;
-            if(cluster.metadata == null || cluster.metadata.name == null) continue;
-            String name = cluster.metadata.name.toUpperCase(Locale.ROOT);
-            if(!name.contains("RED") || !name.contains("AUDIENCE")) continue;
-            if(cam.isCellScorable(cluster)){
-                audienceCellScorable = true;
-                audienceCellStatus = cluster.metadata.name+" roll"
-                        +String.format(Locale.US, "%.1f", cluster.ftcPose.roll);
-                break;
-            }
-            audienceCellStatus = cluster.metadata.name+" detected, not scorable";
+    private boolean isAudienceCellScorable() {
+        Vision.Cell cell = robot.vision.getRedAudienceCell();
+        if (cell != null && cell.isScorable()) {
+            PathUtility.info(LOG_TAG, "Red Audience Cell scorable: " + cell.getNameAndColor());
+            return true;
         }
-        if (audienceCellScorable == true){
-            PathUtility.info(LOG_TAG,
-                    String.format(Locale.US,"Red Audience Cell: detected%b, scorable=%b, cluster=%s",
-                            true,true,"Red Audience"));
-        }
-        return audienceCellScorable;
+        return false;
     }
 
-    /**
-     * Checks whether the next task can be completed while
-     * preserving enough time for parking.
-     */
-    private boolean hasTimeFor(double taskSeconds, double parkSeconds){
+    private boolean hasTimeFor(double taskSeconds, double parkSeconds) {
         double remaining = AUTO_SECONDS - autoTimer.seconds();
-        return remaining >= taskSeconds + parkSeconds+SAFETY_MARGIN_SECONDS;
+        return remaining >= taskSeconds + parkSeconds + SAFETY_MARGIN_SECONDS;
     }
 
     @Override
     public void stop() {
-        stopCollection();
-        stopShooting();
-
-        if (follower != null) {
-            follower.stop();
+        flywheelSpinningForShot = false;
+        if (!NAVIGATION_ONLY) {
+            robot.completeShooter.stop();
         }
-        if (driveDiagnostics!=null){
-            driveDiagnostics.stopAllMotors();
-        }
-        cam.close();
-        PathUtility.info(LOG_TAG,"Auto stopped, camera closed, drivetrain stopped.");
+        if (follower != null) follower.stop();
+        if (driveDiagnostics != null) driveDiagnostics.stopAllMotors();
+        robot.vision.close();
+        PathUtility.info(LOG_TAG, "Auto stopped, camera closed, drivetrain stopped.");
     }
 }
-

@@ -66,4 +66,32 @@ public class Drivetrain implements Subsystem {
         return rightBackMotor;
     }
 
+    /**
+     * Drives the mecanum drivetrain using robot-centric forward, strafe (right+), and turn (clockwise+) inputs.
+     */
+    public void drive(double forward, double strafe, double turn) {
+        double leftFrontPower = forward + strafe + turn;
+        double rightFrontPower = forward - strafe - turn;
+        double leftBackPower = forward - strafe + turn;
+        double rightBackPower = forward + strafe - turn;
+
+        double max = Math.max(1.0, Math.max(
+                Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower)),
+                Math.max(Math.abs(leftBackPower), Math.abs(rightBackPower))
+        ));
+
+        leftFrontMotor.setPower(leftFrontPower / max);
+        rightFrontMotor.setPower(rightFrontPower / max);
+        leftBackMotor.setPower(leftBackPower / max);
+        rightBackMotor.setPower(rightBackPower / max);
+    }
+
+    /** Stops all four drive motors immediately. */
+    public void stop() {
+        leftFrontMotor.setPower(0.0);
+        rightFrontMotor.setPower(0.0);
+        leftBackMotor.setPower(0.0);
+        rightBackMotor.setPower(0.0);
+    }
+
 }

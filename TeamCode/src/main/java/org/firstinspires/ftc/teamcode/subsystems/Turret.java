@@ -4,24 +4,37 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
+
+import dev.nextftc.core.commands.Command;
+import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.subsystems.Subsystem;
 
 /**
- * Encoder-relative turret positioning. The position at init() is zero;
- * this is NOT an absolute/home reference.
- *
- * Set MOTOR_REVS_PER_TURRET_REV to the actual external gear ratio.
- * Set safe angle limits for your mechanical installation BEFORE testing.
+ * Encoder-relative turret positioning supporting either a 1150-RPM or 435-RPM goBILDA motor.
  */
 public final class Turret implements Subsystem {
     public static final Turret INSTANCE = new Turret();
 
-    public static final double RATED_MOTOR_RPM = 435.0;
-    public static double MOTOR_REVS_PER_TURRET_REV = 1.0; // TODO: measure gearing
-    public static double MIN_ANGLE_DEG = -30.0; // conservative placeholders
+    public enum MotorOption {
+        RPM_1150(1150.0, 145.1),
+        RPM_435(435.0, 384.5);
+
+        public final double ratedRpm;
+        public final double defaultTicksPerRev;
+
+        MotorOption(double ratedRpm, double defaultTicksPerRev) {
+            this.ratedRpm = ratedRpm;
+            this.defaultTicksPerRev = defaultTicksPerRev;
+        }
+    }
+
+    public static MotorOption MOTOR_OPTION = MotorOption.RPM_435;
+    public static double MOTOR_REVS_PER_TURRET_REV = 1.0; // External gear/belt ratio
+    public static double MIN_ANGLE_DEG = -30.0;
     public static double MAX_ANGLE_DEG = 30.0;
-    public static double MAX_POWER = 0.20;
-    public static double KP = 0.012; // power per degree; tune on robot
+    public static double MAX_POWER = 0.25;
+    public static double KP = 0.012;  // Proportional gain (power per degree)
+    public static double KD = 0.0008; // Derivative damping (power per deg/sec)
     public static double ANGLE_TOLERANCE_DEG = 1.5;
 
     private DcMotorEx motor;
@@ -33,14 +46,21 @@ public final class Turret implements Subsystem {
     private Turret() {}
 
     public void init(DcMotorEx turretMotor) {
+        if (turretMotor == null) throw new IllegalArgumentException("Turret motor cannot be null");
         motor = turretMotor;
         motor.setDirection(DcMotorSimple.Direction.FORWARD);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setPower(0);
+        resetZero();
+    }
+
+    /** Sets the current physical turret angle as 0.0 degrees. */
+    public void resetZero() {
+        requireInitialized();
         zeroTicks = motor.getCurrentPosition();
-        targetAngleDeg = 0;
-        manualPower = 0;
+        targetAngleDeg = 0.0;
+        manualPower = 0.0;
         positionMode = false;
     }
 
@@ -50,14 +70,22 @@ public final class Turret implements Subsystem {
 
     public double getTicksPerMotorRevolution() {
         requireInitialized();
-        return motor.getMotorType().getTicksPerRev();
+        double ticks = motor.getMotorType().getTicksPerRev();
+        return (Double.isFinite(ticks) && ticks > 0.0) ? ticks : MOTOR_OPTION.defaultTicksPerRev;
+    }
+
+    public double getTicksPerTurretDegree() {
+        return (getTicksPerMotorRevolution() * MOTOR_REVS_PER_TURRET_REV) / 360.0;
     }
 
     public double getAngleDegrees() {
         requireInitialized();
-        double ticksPerTurretRev = getTicksPerMotorRevolution() * MOTOR_REVS_PER_TURRET_REV;
-        if (ticksPerTurretRev <= 0) throw new IllegalStateException("Invalid turret gearing/encoder configuration");
-        return (motor.getCurrentPosition() - zeroTicks) * 360.0 / ticksPerTurretRev;
+        return (motor.getCurrentPosition() - zeroTicks) / getTicksPerTurretDegree();
+    }
+
+    public double getAngularVelocityDegPerSec() {
+        requireInitialized();
+        return motor.getVelocity() / getTicksPerTurretDegree();
     }
 
     public int getEncoderTicks() {
@@ -65,9 +93,6 @@ public final class Turret implements Subsystem {
         return motor.getCurrentPosition();
     }
 
-    /*
-    * The function is for auto-aimming. After calculation, the calculated angle is set.
-     */
     public void setTargetAngle(double degrees) {
         requireInitialized();
         targetAngleDeg = Range.clip(degrees, MIN_ANGLE_DEG, MAX_ANGLE_DEG);
@@ -81,14 +106,12 @@ public final class Turret implements Subsystem {
         return positionMode && Math.abs(targetAngleDeg - getAngleDegrees()) <= ANGLE_TOLERANCE_DEG;
     }
 
-    /** Manual motor power, still constrained by the configured angle limits. */
     public void setManualPower(double power) {
         requireInitialized();
         positionMode = false;
         manualPower = Range.clip(power, -MAX_POWER, MAX_POWER);
     }
 
-    /** Stop commanding motion; hold with motor BRAKE (not active angle hold). */
     public void stop() {
         if (motor != null) motor.setPower(0);
         manualPower = 0;
@@ -97,6 +120,10 @@ public final class Turret implements Subsystem {
 
     public boolean isPositionMode() { return positionMode; }
 
+    public Command setTargetAngleCommand(double degrees) {
+        return new InstantCommand(() -> setTargetAngle(degrees));
+    }
+
     @Override
     public void periodic() {
         if (motor == null) return;
@@ -104,8 +131,12 @@ public final class Turret implements Subsystem {
         double power;
         if (positionMode) {
             double error = targetAngleDeg - angle;
-            power = Math.abs(error) <= ANGLE_TOLERANCE_DEG
-                    ? 0.0 : Range.clip(KP * error, -MAX_POWER, MAX_POWER);
+            if (Math.abs(error) <= ANGLE_TOLERANCE_DEG) {
+                power = 0.0;
+            } else {
+                double velDegPerSec = getAngularVelocityDegPerSec();
+                power = Range.clip((KP * error) - (KD * velDegPerSec), -MAX_POWER, MAX_POWER);
+            }
         } else {
             power = manualPower;
         }

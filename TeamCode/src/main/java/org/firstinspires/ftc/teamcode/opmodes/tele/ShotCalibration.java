@@ -42,6 +42,8 @@ public class ShotCalibration extends OpMode {
         hood.init(hardwareMap.get(Servo.class, "hood"));
         flywheel.init(hardwareMap.get(DcMotorEx.class, "flywheel"));
         turret.init(hardwareMap.get(DcMotorEx.class, "turret"));
+        // In init():
+        vision.setEnableTelemetry(false);
         flywheel.stop();
         turret.stop();
         autoTurretEnabled = false;
@@ -51,6 +53,8 @@ public class ShotCalibration extends OpMode {
     }
 
     @Override public void loop() {
+        // At the top of loop():
+        vision.periodic();
         // Change these values only after confirming safe hardware limits.
         if (gamepad1.dpad_up && !prevUp) hood.adjustPosition(+0.005);
         if (gamepad1.dpad_down && !prevDown) hood.adjustPosition(-0.005);
@@ -104,8 +108,10 @@ public class ShotCalibration extends OpMode {
             if (!valid) status = "Not recorded: no valid scorable CELL";
             else if (flywheel.isVelocityMode()) status = "Release B after shot, then press A to record";
             else {
-                String row = String.format(Locale.US, "{%.2f, %.4f, %.0f},",
-                        distance, hood.getPosition(), requestedRpm);
+                //String row = String.format(Locale.US, "{%.2f, %.4f, %.0f},",
+                //        distance, hood.getPosition(), requestedRpm);
+                String row = String.format(Locale.US, "{%.2f, /* angleDeg for pos=%.4f */ %.4f, %.0f},",
+                        distance, hood.getPosition(), hood.getPosition(), requestedRpm);
                 acceptedRows.add(row);
                 status = "Recorded: " + row;
             }

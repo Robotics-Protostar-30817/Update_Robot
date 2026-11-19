@@ -28,7 +28,7 @@ import dev.nextftc.core.subsystems.Subsystem;
 /**
  * Vision subsystem tuned for the goBILDA Global Shutter USB Camera (3122-0004-0001).
  * Native sensor aspect ratio is 16:10 (1280x800 or 640x400).
- * Identifies all four BIOBUZZ scorable AprilTagClusterDetections (Red/Blue x Audience/Scoring).
+ * Identifies any scorable AprilTagClusterDetection regardless of color or field location.
  */
 public class Vision implements Subsystem {
 
@@ -249,7 +249,7 @@ public class Vision implements Subsystem {
 
     /**
      * Scans all cached AprilTagClusterDetections, builds Cell objects for every scorable cell
-     * (Red/Blue x Audience/Scoring), and tracks the highest-confidence scorable cell.
+     * (regardless of color or location), and tracks the highest-confidence scorable cell.
      */
     private void updateScorableCells() {
         List<Cell> foundCells = new ArrayList<>();
@@ -344,10 +344,6 @@ public class Vision implements Subsystem {
         return bestMatch;
     }
 
-    // -------------------------------------------------------------------------
-    // 3. SPECIFIC CELL CONVENIENCE HELPERS (Red/Blue x Audience/Scoring)
-    // -------------------------------------------------------------------------
-
     public boolean isRedAudienceScorable() {
         return getBestCell(Cell.Color.RED, Cell.Location.AUDIENCE) != null;
     }
@@ -356,28 +352,12 @@ public class Vision implements Subsystem {
         return getBestCell(Cell.Color.BLUE, Cell.Location.AUDIENCE) != null;
     }
 
-    public boolean isRedScoringScorable() {
-        return getBestCell(Cell.Color.RED, Cell.Location.SCORING) != null;
-    }
-
-    public boolean isBlueScoringScorable() {
-        return getBestCell(Cell.Color.BLUE, Cell.Location.SCORING) != null;
-    }
-
     public Cell getRedAudienceCell() {
         return getBestCell(Cell.Color.RED, Cell.Location.AUDIENCE);
     }
 
     public Cell getBlueAudienceCell() {
         return getBestCell(Cell.Color.BLUE, Cell.Location.AUDIENCE);
-    }
-
-    public Cell getRedScoringCell() {
-        return getBestCell(Cell.Color.RED, Cell.Location.SCORING);
-    }
-
-    public Cell getBlueScoringCell() {
-        return getBestCell(Cell.Color.BLUE, Cell.Location.SCORING);
     }
 
     public List<AprilTagDetection> getDetections() {

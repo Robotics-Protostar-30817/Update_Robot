@@ -30,7 +30,6 @@ loadScripts(document, 'script');</script>
 <li><a href="../../../../../index.html">Overview</a></li>
 <li class="nav-bar-cell1-rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
-<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
 <li><a href="../../../../../index-all.html">Index</a></li>
 <li><a href="../../../../../search.html">Search</a></li>
 <li><a href="../../../../../help-doc.html#class">Help</a></li>
@@ -54,25 +53,30 @@ loadScripts(document, 'script');</script>
 <div class="toc-header">Contents&nbsp;<input type="text" class="filter-input" disabled placeholder="Filter contents (type .)" aria-label="Filter table of contents" autocomplete="off" spellcheck="false"><input type="reset" class="reset-filter" disabled tabindex="-1" value="Reset"></div>
 <ol class="toc-list" tabindex="-1">
 <li><a href="#" tabindex="0">Description</a></li>
+<li><a href="#nested-class-summary" tabindex="0">Nested Class Summary</a></li>
 <li><a href="#field-summary" tabindex="0">Field Summary</a></li>
 <li><a href="#method-summary" tabindex="0">Method Summary</a></li>
 <li><a href="#field-detail" tabindex="0">Field Details</a>
 <ol class="toc-list">
 <li><a href="#INSTANCE" tabindex="0">INSTANCE</a></li>
-<li><a href="#RATED_MOTOR_RPM" tabindex="0">RATED_MOTOR_RPM</a></li>
+<li><a href="#MOTOR_OPTION" tabindex="0">MOTOR_OPTION</a></li>
 <li><a href="#MOTOR_REVS_PER_TURRET_REV" tabindex="0">MOTOR_REVS_PER_TURRET_REV</a></li>
 <li><a href="#MIN_ANGLE_DEG" tabindex="0">MIN_ANGLE_DEG</a></li>
 <li><a href="#MAX_ANGLE_DEG" tabindex="0">MAX_ANGLE_DEG</a></li>
 <li><a href="#MAX_POWER" tabindex="0">MAX_POWER</a></li>
 <li><a href="#KP" tabindex="0">KP</a></li>
+<li><a href="#KD" tabindex="0">KD</a></li>
 <li><a href="#ANGLE_TOLERANCE_DEG" tabindex="0">ANGLE_TOLERANCE_DEG</a></li>
 </ol>
 </li>
 <li><a href="#method-detail" tabindex="0">Method Details</a>
 <ol class="toc-list">
 <li><a href="#init(com.qualcomm.robotcore.hardware.DcMotorEx)" tabindex="0">init(DcMotorEx)</a></li>
+<li><a href="#resetZero()" tabindex="0">resetZero()</a></li>
 <li><a href="#getTicksPerMotorRevolution()" tabindex="0">getTicksPerMotorRevolution()</a></li>
+<li><a href="#getTicksPerTurretDegree()" tabindex="0">getTicksPerTurretDegree()</a></li>
 <li><a href="#getAngleDegrees()" tabindex="0">getAngleDegrees()</a></li>
+<li><a href="#getAngularVelocityDegPerSec()" tabindex="0">getAngularVelocityDegPerSec()</a></li>
 <li><a href="#getEncoderTicks()" tabindex="0">getEncoderTicks()</a></li>
 <li><a href="#setTargetAngle(double)" tabindex="0">setTargetAngle(double)</a></li>
 <li><a href="#getTargetAngle()" tabindex="0">getTargetAngle()</a></li>
@@ -80,6 +84,7 @@ loadScripts(document, 'script');</script>
 <li><a href="#setManualPower(double)" tabindex="0">setManualPower(double)</a></li>
 <li><a href="#stop()" tabindex="0">stop()</a></li>
 <li><a href="#isPositionMode()" tabindex="0">isPositionMode()</a></li>
+<li><a href="#setTargetAngleCommand(double)" tabindex="0">setTargetAngleCommand(double)</a></li>
 <li><a href="#periodic()" tabindex="0">periodic()</a></li>
 </ol>
 </li>
@@ -103,15 +108,26 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">Turret</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements dev.nextftc.core.subsystems.Subsystem</span></div>
-<div class="block">Encoder-relative turret positioning. The position at init() is zero;
-this is NOT an absolute/home reference.
-
-Set MOTOR_REVS_PER_TURRET_REV to the actual external gear ratio.
-Set safe angle limits for your mechanical installation BEFORE testing.</div>
+<div class="block">Encoder-relative turret positioning supporting either a 1150-RPM or 435-RPM goBILDA motor.</div>
 </div>
 </section>
 <section class="summary">
 <ul class="summary-list">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<li>
+<section class="nested-class-summary" id="nested-class-summary">
+<h2>Nested Class Summary</h2>
+<div class="caption"><span>Nested Classes</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Class</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static enum&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="Turret.MotorOption.html" class="type-name-link" title="enum class in org.firstinspires.ftc.teamcode.subsystems">Turret.MotorOption</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+</div>
+</section>
+</li>
 <!-- =========== FIELD SUMMARY =========== -->
 <li>
 <section class="field-summary" id="field-summary">
@@ -128,23 +144,26 @@ Set safe angle limits for your mechanical installation BEFORE testing.</div>
 <div class="col-second odd-row-color"><code><a href="#INSTANCE" class="member-name-link">INSTANCE</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static double</code></div>
-<div class="col-second even-row-color"><code><a href="#KP" class="member-name-link">KP</a></code></div>
+<div class="col-second even-row-color"><code><a href="#KD" class="member-name-link">KD</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>static double</code></div>
-<div class="col-second odd-row-color"><code><a href="#MAX_ANGLE_DEG" class="member-name-link">MAX_ANGLE_DEG</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#KP" class="member-name-link">KP</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static double</code></div>
-<div class="col-second even-row-color"><code><a href="#MAX_POWER" class="member-name-link">MAX_POWER</a></code></div>
+<div class="col-second even-row-color"><code><a href="#MAX_ANGLE_DEG" class="member-name-link">MAX_ANGLE_DEG</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>static double</code></div>
-<div class="col-second odd-row-color"><code><a href="#MIN_ANGLE_DEG" class="member-name-link">MIN_ANGLE_DEG</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#MAX_POWER" class="member-name-link">MAX_POWER</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static double</code></div>
+<div class="col-second even-row-color"><code><a href="#MIN_ANGLE_DEG" class="member-name-link">MIN_ANGLE_DEG</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static <a href="Turret.MotorOption.html" title="enum class in org.firstinspires.ftc.teamcode.subsystems">Turret.MotorOption</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#MOTOR_OPTION" class="member-name-link">MOTOR_OPTION</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static double</code></div>
 <div class="col-second even-row-color"><code><a href="#MOTOR_REVS_PER_TURRET_REV" class="member-name-link">MOTOR_REVS_PER_TURRET_REV</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static final double</code></div>
-<div class="col-second odd-row-color"><code><a href="#RATED_MOTOR_RPM" class="member-name-link">RATED_MOTOR_RPM</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -162,14 +181,20 @@ Set safe angle limits for your mechanical installation BEFORE testing.</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAngleDegrees()" class="member-name-link">getAngleDegrees</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEncoderTicks()" class="member-name-link">getEncoderTicks</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAngularVelocityDegPerSec()" class="member-name-link">getAngularVelocityDegPerSec</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTargetAngle()" class="member-name-link">getTargetAngle</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEncoderTicks()" class="member-name-link">getEncoderTicks</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTicksPerMotorRevolution()" class="member-name-link">getTicksPerMotorRevolution</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTargetAngle()" class="member-name-link">getTargetAngle</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTicksPerMotorRevolution()" class="member-name-link">getTicksPerMotorRevolution</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTicksPerTurretDegree()" class="member-name-link">getTicksPerTurretDegree</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#init(com.qualcomm.robotcore.hardware.DcMotorEx)" class="member-name-link">init</a><wbr>(com.qualcomm.robotcore.hardware.DcMotorEx&nbsp;turretMotor)</code></div>
@@ -184,18 +209,22 @@ Set safe angle limits for your mechanical installation BEFORE testing.</div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#periodic()" class="member-name-link">periodic</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setManualPower(double)" class="member-name-link">setManualPower</a><wbr>(double&nbsp;power)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#resetZero()" class="member-name-link">resetZero</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Manual motor power, still constrained by the configured angle limits.</div>
+<div class="block">Sets the current physical turret angle as 0.0 degrees.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setTargetAngle(double)" class="member-name-link">setTargetAngle</a><wbr>(double&nbsp;degrees)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setManualPower(double)" class="member-name-link">setManualPower</a><wbr>(double&nbsp;power)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setTargetAngle(double)" class="member-name-link">setTargetAngle</a><wbr>(double&nbsp;degrees)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>dev.nextftc.core.commands.Command</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setTargetAngleCommand(double)" class="member-name-link">setTargetAngleCommand</a><wbr>(double&nbsp;degrees)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stop()" class="member-name-link">stop</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Stop commanding motion; hold with motor BRAKE (not active angle hold).</div>
-</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -225,18 +254,10 @@ Set safe angle limits for your mechanical installation BEFORE testing.</div>
 </section>
 </li>
 <li>
-<section class="detail" id="RATED_MOTOR_RPM">
-<h3>RATED_MOTOR_RPM</h3>
+<section class="detail" id="MOTOR_OPTION">
+<h3>MOTOR_OPTION</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">RATED_MOTOR_RPM</span></div>
-<dl class="notes">
-<dt>See Also:</dt>
-<dd>
-<ul class="tag-list">
-<li><a href="../../../../../constant-values.html#org.firstinspires.ftc.teamcode.subsystems.Turret.RATED_MOTOR_RPM">Constant Field Values</a></li>
-</ul>
-</dd>
-</dl>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="Turret.MotorOption.html" title="enum class in org.firstinspires.ftc.teamcode.subsystems">Turret.MotorOption</a></span>&nbsp;<span class="element-name">MOTOR_OPTION</span></div>
 </div>
 </section>
 </li>
@@ -281,6 +302,14 @@ Set safe angle limits for your mechanical installation BEFORE testing.</div>
 </section>
 </li>
 <li>
+<section class="detail" id="KD">
+<h3>KD</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">KD</span></div>
+</div>
+</section>
+</li>
+<li>
 <section class="detail" id="ANGLE_TOLERANCE_DEG">
 <h3>ANGLE_TOLERANCE_DEG</h3>
 <div class="horizontal-scroll">
@@ -305,6 +334,15 @@ Set safe angle limits for your mechanical installation BEFORE testing.</div>
 </section>
 </li>
 <li>
+<section class="detail" id="resetZero()">
+<h3>resetZero</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">resetZero</span>()</div>
+<div class="block">Sets the current physical turret angle as 0.0 degrees.</div>
+</div>
+</section>
+</li>
+<li>
 <section class="detail" id="getTicksPerMotorRevolution()">
 <h3>getTicksPerMotorRevolution</h3>
 <div class="horizontal-scroll">
@@ -313,10 +351,26 @@ Set safe angle limits for your mechanical installation BEFORE testing.</div>
 </section>
 </li>
 <li>
+<section class="detail" id="getTicksPerTurretDegree()">
+<h3>getTicksPerTurretDegree</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">getTicksPerTurretDegree</span>()</div>
+</div>
+</section>
+</li>
+<li>
 <section class="detail" id="getAngleDegrees()">
 <h3>getAngleDegrees</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">getAngleDegrees</span>()</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getAngularVelocityDegPerSec()">
+<h3>getAngularVelocityDegPerSec</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">getAngularVelocityDegPerSec</span>()</div>
 </div>
 </section>
 </li>
@@ -357,7 +411,6 @@ Set safe angle limits for your mechanical installation BEFORE testing.</div>
 <h3>setManualPower</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setManualPower</span><wbr><span class="parameters">(double&nbsp;power)</span></div>
-<div class="block">Manual motor power, still constrained by the configured angle limits.</div>
 </div>
 </section>
 </li>
@@ -366,7 +419,6 @@ Set safe angle limits for your mechanical installation BEFORE testing.</div>
 <h3>stop</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stop</span>()</div>
-<div class="block">Stop commanding motion; hold with motor BRAKE (not active angle hold).</div>
 </div>
 </section>
 </li>
@@ -375,6 +427,14 @@ Set safe angle limits for your mechanical installation BEFORE testing.</div>
 <h3>isPositionMode</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isPositionMode</span>()</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setTargetAngleCommand(double)">
+<h3>setTargetAngleCommand</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">dev.nextftc.core.commands.Command</span>&nbsp;<span class="element-name">setTargetAngleCommand</span><wbr><span class="parameters">(double&nbsp;degrees)</span></div>
 </div>
 </section>
 </li>

@@ -1,8 +1,12 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
+import dev.nextftc.core.commands.Command;
+import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.subsystems.Subsystem;
 
 /**
@@ -155,4 +159,6 @@ public final class Hood implements Subsystem {
     public void periodic() {
         // Standard positional servo handles position control internally.
     }
+
+    public Command setLaunchAngleCommand(double deg) { return new InstantCommand(() -> setLaunchAngle(deg)); }
 }
