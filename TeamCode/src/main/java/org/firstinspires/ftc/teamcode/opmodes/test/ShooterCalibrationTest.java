@@ -72,10 +72,10 @@ public class ShooterCalibrationTest extends LinearOpMode {
         Hood.INSTANCE.init(hardwareMap.get(Servo.class, "hood"));
         Blocker.INSTANCE.init(hardwareMap.get(Servo.class, "blocker"));
         Transfer.INSTANCE.init(
-                hardwareMap.get(DcMotorEx.class, "intake"),
-                hardwareMap.get(DcMotorEx.class, "feed")
+                hardwareMap.get(DcMotorEx.class, "transfer1"),
+                hardwareMap.get(DcMotorEx.class, "transfer2")
         );
-        IntakeRamp.INSTANCE.init(hardwareMap.get(Servo.class, "intakeRamp"));
+        IntakeRamp.INSTANCE.init(hardwareMap.get(Servo.class, "intake"));
 
         // Allow full 0.0 - 1.0 bench calibration range on Hood (be careful near mechanical stops!)
         Hood.MIN_POSITION = 0.0;

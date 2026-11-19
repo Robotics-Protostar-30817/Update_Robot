@@ -69,11 +69,11 @@ public final class CompleteShooterTest extends NextFTCOpMode {
         hood.init(hardwareMap.get(Servo.class, "hood"));
         flywheel.init(hardwareMap.get(DcMotorEx.class, "flywheel"));
         transfer.init(
-                hardwareMap.get(DcMotorEx.class, "transferMotor1"),
-                hardwareMap.get(DcMotorEx.class, "transferMotor2")
+                hardwareMap.get(DcMotorEx.class, "transfer1"),
+                hardwareMap.get(DcMotorEx.class, "transfer2")
         );
         blocker.init(hardwareMap.get(Servo.class, "blocker"));
-        ramp.init(hardwareMap.get(Servo.class, "intakeRamp"));
+        ramp.init(hardwareMap.get(Servo.class, "intake"));
         vision.init(hardwareMap, telemetry);
         vision.setEnableTelemetry(false);
 
