@@ -7,6 +7,10 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.WhiteBa
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+
+import java.util.Locale;
 
 @TeleOp(name = "VisionTest", group = "Test")
 public class VisionTest extends OpMode {
@@ -33,6 +37,19 @@ public class VisionTest extends OpMode {
             {
                 telemetry.addData("White Balance", "%s (%dK)",
                         wb.getMode(),wb.getWhiteBalanceTemperature());
+            }
+        }
+
+        for (AprilTagDetection detection:
+                    Robot.INSTANCE.vision.getDetections()){
+            if (!(detection instanceof AprilTagClusterDetection)) continue;
+            AprilTagClusterDetection cluster = (AprilTagClusterDetection) detection;
+            if (cluster.metadata.name.toUpperCase(Locale.ROOT).contains("RED")) {
+                telemetry.addData("Raw Detection", "%.1f, %.1f, %.1f",
+                        cluster.ftcPose.x, cluster.ftcPose.y, cluster.ftcPose.z);
+                double transformed[] = Vision.cameraToRobotCenter(cluster.ftcPose);
+                telemetry.addData("Transformed", "%.1f, %.1f, %.1f",
+                        transformed[0], transformed[1], transformed[2]);
             }
         }
         //Test Red cell only
