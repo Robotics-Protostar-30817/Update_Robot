@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.WhiteBalanceControl;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
@@ -43,24 +44,27 @@ public class Vision implements Subsystem {
     // -------------------------------------------------------------------------
     // Use 640x400 for fastest loop/FPS during Auto, or 1280x800 for long-range tags.
     public static final int CAMERA_WIDTH = 640;
-    public static final int CAMERA_HEIGHT = 400;
+    public static final int CAMERA_HEIGHT = 480;
 
     // Calibrated intrinsics for 640x400 (scale x2 if switching to 1280x800).
-    public static double LENS_FX = 415.0;
-    public static double LENS_FY = 415.0;
-    public static final double LENS_CX = CAMERA_WIDTH / 2.0;
-    public static final double LENS_CY = CAMERA_HEIGHT / 2.0;
+    public static double LENS_FX = 545.584;
+    public static double LENS_FY = 545.584;
+    public static final double LENS_CX = 350.588;
+    public static final double LENS_CY = 223.150;
 
+    private boolean whiteBalanceConfigured=false;
+    public static WhiteBalanceControl.Mode WBM = WhiteBalanceControl.Mode.AUTO;
+    public static int Manual_WBM = 3500;
     // -------------------------------------------------------------------------
     // 2. PHYSICAL MOUNTING OFFSETS (Calibrate using CameraTest)
     // -------------------------------------------------------------------------
     // FTC Robot Coordinate Frame: +X = Right, +Y = Forward, +Z = Up (from robot/turret center)
-    public static double CAMERA_TO_CENTER_X_INCHES = -3.5;
-    public static double CAMERA_TO_CENTER_Y_INCHES = -4.25;
-    public static double CAMERA_TO_CENTER_Z_INCHES = 12.0;
+    public static double CAMERA_TO_CENTER_X_INCHES = 0;
+    public static double CAMERA_TO_CENTER_Y_INCHES = 6.2;
+    public static double CAMERA_TO_CENTER_Z_INCHES = 8;
 
     // Facing straight forward on the new mount (0.0 deg default; tune with CameraTest)
-    public static double CAMERA_UPWARD_TILT_DEGREES = 27.0;
+    public static double CAMERA_UPWARD_TILT_DEGREES = 43.8;
     public static double CAMERA_YAW_DEGREES = 0.0;
     public static double CAMERA_ROLL_DEGREES = 0.0;
 
@@ -166,6 +170,8 @@ public class Vision implements Subsystem {
             visionPortal.close();
         }
 
+        whiteBalanceConfigured = false;
+
         Position cameraPosition = new Position(
                 DistanceUnit.INCH,
                 CAMERA_TO_CENTER_X_INCHES,
@@ -193,10 +199,24 @@ public class Vision implements Subsystem {
         visionPortal = new VisionPortal.Builder()
                 .setCamera(webcam)
                 .setCameraResolution(new Size(CAMERA_WIDTH, CAMERA_HEIGHT))
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .addProcessor(aprilTag)
                 .build();
+        applyWhiteBalance();
     }
 
+    public void applyWhiteBalance(){
+        if (visionPortal == null||whiteBalanceConfigured) return;
+        if(visionPortal.getCameraState()!=VisionPortal.CameraState.STREAMING) return;
+        WhiteBalanceControl wbC = visionPortal.getCameraControl(WhiteBalanceControl.class);
+        if (wbC !=null){
+            wbC.setMode(WBM);
+            if (WBM == WhiteBalanceControl.Mode.MANUAL){
+                wbC.setWhiteBalanceTemperature(Manual_WBM);
+            }
+            whiteBalanceConfigured = true;
+        }
+    }
     public void setEnableTelemetry(boolean enable) {
         this.enableTelemetry = enable;
     }
@@ -204,7 +224,9 @@ public class Vision implements Subsystem {
     @Override
     public void periodic() {
         if (aprilTag == null) return;
-
+        if(!whiteBalanceConfigured){
+            applyWhiteBalance();
+        }
         cachedDetections = aprilTag.getDetections();
         updateScorableCells();
 

@@ -65,6 +65,8 @@ loadScripts(document, 'script');</script>
 <li><a href="#LENS_FY" tabindex="0">LENS_FY</a></li>
 <li><a href="#LENS_CX" tabindex="0">LENS_CX</a></li>
 <li><a href="#LENS_CY" tabindex="0">LENS_CY</a></li>
+<li><a href="#WBM" tabindex="0">WBM</a></li>
+<li><a href="#Manual_WBM" tabindex="0">Manual_WBM</a></li>
 <li><a href="#CAMERA_TO_CENTER_X_INCHES" tabindex="0">CAMERA_TO_CENTER_X_INCHES</a></li>
 <li><a href="#CAMERA_TO_CENTER_Y_INCHES" tabindex="0">CAMERA_TO_CENTER_Y_INCHES</a></li>
 <li><a href="#CAMERA_TO_CENTER_Z_INCHES" tabindex="0">CAMERA_TO_CENTER_Z_INCHES</a></li>
@@ -77,6 +79,7 @@ loadScripts(document, 'script');</script>
 <ol class="toc-list">
 <li><a href="#init(com.qualcomm.robotcore.hardware.HardwareMap,org.firstinspires.ftc.robotcore.external.Telemetry)" tabindex="0">init(HardwareMap, Telemetry)</a></li>
 <li><a href="#rebuildPortal(com.qualcomm.robotcore.hardware.HardwareMap)" tabindex="0">rebuildPortal(HardwareMap)</a></li>
+<li><a href="#applyWhiteBalance()" tabindex="0">applyWhiteBalance()</a></li>
 <li><a href="#setEnableTelemetry(boolean)" tabindex="0">setEnableTelemetry(boolean)</a></li>
 <li><a href="#periodic()" tabindex="0">periodic()</a></li>
 <li><a href="#cameraToRobotCenter(org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc)" tabindex="0">cameraToRobotCenter(AprilTagPoseFtc)</a></li>
@@ -188,6 +191,12 @@ Identifies any scorable AprilTagClusterDetection regardless of color or field lo
 <div class="col-first even-row-color"><code>static double</code></div>
 <div class="col-second even-row-color"><code><a href="#LENS_FY" class="member-name-link">LENS_FY</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static int</code></div>
+<div class="col-second odd-row-color"><code><a href="#Manual_WBM" class="member-name-link">Manual_WBM</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static org.firstinspires.ftc.robotcore.external.hardware.camera.controls.WhiteBalanceControl.Mode</code></div>
+<div class="col-second even-row-color"><code><a href="#WBM" class="member-name-link">WBM</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -202,91 +211,94 @@ Identifies any scorable AprilTagClusterDetection regardless of color or field lo
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static double[]</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#cameraToRobotCenter(org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc)" class="member-name-link">cameraToRobotCenter</a><wbr>(org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc&nbsp;ftcPose)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#applyWhiteBalance()" class="member-name-link">applyWhiteBalance</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static double[]</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#cameraToRobotCenter(org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc)" class="member-name-link">cameraToRobotCenter</a><wbr>(org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc&nbsp;ftcPose)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Converts camera-relative ftcPose into robot-center-relative [x, y, z] coordinates (inches).</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#close()" class="member-name-link">close</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.firstinspires.ftc.vision.apriltag.AprilTagProcessor</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAprilTagProcessor()" class="member-name-link">getAprilTagProcessor</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#close()" class="member-name-link">close</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBestCell(org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Color)" class="member-name-link">getBestCell</a><wbr>(<a href="Vision.Cell.Color.html" title="enum class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell.Color</a>&nbsp;color)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.firstinspires.ftc.vision.apriltag.AprilTagProcessor</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAprilTagProcessor()" class="member-name-link">getAprilTagProcessor</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBestCell(org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Color)" class="member-name-link">getBestCell</a><wbr>(<a href="Vision.Cell.Color.html" title="enum class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell.Color</a>&nbsp;color)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the highest-confidence scorable cell matching the requested color (any location),
 or null if none is visible.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBestCell(org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Color,org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Location)" class="member-name-link">getBestCell</a><wbr>(<a href="Vision.Cell.Color.html" title="enum class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell.Color</a>&nbsp;color,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBestCell(org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Color,org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Location)" class="member-name-link">getBestCell</a><wbr>(<a href="Vision.Cell.Color.html" title="enum class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell.Color</a>&nbsp;color,
  <a href="Vision.Cell.Location.html" title="enum class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell.Location</a>&nbsp;location)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the highest-confidence scorable cell matching both color and location,
 or null if none is visible.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBestScorableCell()" class="member-name-link">getBestScorableCell</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBestScorableCell()" class="member-name-link">getBestScorableCell</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the highest-confidence scorable cell detected (any color, any location), or null.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBestScorableCellNameAndColor()" class="member-name-link">getBestScorableCellNameAndColor</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBestScorableCellNameAndColor()" class="member-name-link">getBestScorableCellNameAndColor</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the name and color of the best scorable cell (e.g., "RED_SCORING (RED)"), or null if none.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBlueAudienceCell()" class="member-name-link">getBlueAudienceCell</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;org.firstinspires.ftc.vision.apriltag.AprilTagDetection&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDetections()" class="member-name-link">getDetections</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBlueAudienceCell()" class="member-name-link">getBlueAudienceCell</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRedAudienceCell()" class="member-name-link">getRedAudienceCell</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;org.firstinspires.ftc.vision.apriltag.AprilTagDetection&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDetections()" class="member-name-link">getDetections</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getScorableCells()" class="member-name-link">getScorableCells</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRedAudienceCell()" class="member-name-link">getRedAudienceCell</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="Vision.Cell.html" title="class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getScorableCells()" class="member-name-link">getScorableCells</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns all currently detected scorable cells (any color, any location).</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.firstinspires.ftc.vision.VisionPortal</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getVisionPortal()" class="member-name-link">getVisionPortal</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasScorableCell()" class="member-name-link">hasScorableCell</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns true if any scorable cell (any color, any location) is currently detected.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#init(com.qualcomm.robotcore.hardware.HardwareMap,org.firstinspires.ftc.robotcore.external.Telemetry)" class="member-name-link">init</a><wbr>(com.qualcomm.robotcore.hardware.HardwareMap&nbsp;hardwareMap,
- org.firstinspires.ftc.robotcore.external.Telemetry&nbsp;telemetry)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isBlueAudienceScorable()" class="member-name-link">isBlueAudienceScorable</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.firstinspires.ftc.vision.VisionPortal</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getVisionPortal()" class="member-name-link">getVisionPortal</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isCellScorable(org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection)" class="member-name-link">isCellScorable</a><wbr>(org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection&nbsp;cluster)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasScorableCell()" class="member-name-link">hasScorableCell</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns true if any scorable cell (any color, any location) is currently detected.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#init(com.qualcomm.robotcore.hardware.HardwareMap,org.firstinspires.ftc.robotcore.external.Telemetry)" class="member-name-link">init</a><wbr>(com.qualcomm.robotcore.hardware.HardwareMap&nbsp;hardwareMap,
+ org.firstinspires.ftc.robotcore.external.Telemetry&nbsp;telemetry)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isBlueAudienceScorable()" class="member-name-link">isBlueAudienceScorable</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isRedAudienceScorable()" class="member-name-link">isRedAudienceScorable</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isCellScorable(org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection)" class="member-name-link">isCellScorable</a><wbr>(org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection&nbsp;cluster)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>dev.nextftc.core.commands.Command</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#pauseStream()" class="member-name-link">pauseStream</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isRedAudienceScorable()" class="member-name-link">isRedAudienceScorable</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>dev.nextftc.core.commands.Command</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#pauseStream()" class="member-name-link">pauseStream</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">NextFTC command to pause camera streaming once scoring is complete</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#periodic()" class="member-name-link">periodic</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#rebuildPortal(com.qualcomm.robotcore.hardware.HardwareMap)" class="member-name-link">rebuildPortal</a><wbr>(com.qualcomm.robotcore.hardware.HardwareMap&nbsp;hardwareMap)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#periodic()" class="member-name-link">periodic</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#rebuildPortal(com.qualcomm.robotcore.hardware.HardwareMap)" class="member-name-link">rebuildPortal</a><wbr>(com.qualcomm.robotcore.hardware.HardwareMap&nbsp;hardwareMap)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Builds or rebuilds the VisionPortal with current camera mounting offsets and intrinsics.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setEnableTelemetry(boolean)" class="member-name-link">setEnableTelemetry</a><wbr>(boolean&nbsp;enable)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setEnableTelemetry(boolean)" class="member-name-link">setEnableTelemetry</a><wbr>(boolean&nbsp;enable)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -396,6 +408,22 @@ or null if none is visible.</div>
 </section>
 </li>
 <li>
+<section class="detail" id="WBM">
+<h3>WBM</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">org.firstinspires.ftc.robotcore.external.hardware.camera.controls.WhiteBalanceControl.Mode</span>&nbsp;<span class="element-name">WBM</span></div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="Manual_WBM">
+<h3>Manual_WBM</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">Manual_WBM</span></div>
+</div>
+</section>
+</li>
+<li>
 <section class="detail" id="CAMERA_TO_CENTER_X_INCHES">
 <h3>CAMERA_TO_CENTER_X_INCHES</h3>
 <div class="horizontal-scroll">
@@ -467,6 +495,14 @@ or null if none is visible.</div>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">rebuildPortal</span><wbr><span class="parameters">(com.qualcomm.robotcore.hardware.HardwareMap&nbsp;hardwareMap)</span></div>
 <div class="block">Builds or rebuilds the VisionPortal with current camera mounting offsets and intrinsics.
 Can be called from CameraTest after live-tuning offsets.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="applyWhiteBalance()">
+<h3>applyWhiteBalance</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">applyWhiteBalance</span>()</div>
 </div>
 </section>
 </li>

@@ -3,8 +3,10 @@ package org.firstinspires.ftc.teamcode.opmodes.tele;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.WhiteBalanceControl;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
+import org.firstinspires.ftc.vision.VisionPortal;
 
 @TeleOp(name = "VisionTest", group = "Test")
 public class VisionTest extends OpMode {
@@ -22,7 +24,20 @@ public class VisionTest extends OpMode {
     public void loop() {
         Robot.INSTANCE.vision.periodic();
 
-        Vision.Cell best = Robot.INSTANCE.vision.getBestScorableCell();
+        VisionPortal p = Robot.INSTANCE.vision.getVisionPortal();
+        if (p!=null){
+            telemetry.addData("Camera State/FPS", "%s | %.1f FPS",
+                    p.getCameraState(),p.getFps());
+            WhiteBalanceControl wb = p.getCameraControl(WhiteBalanceControl.class);
+            if (wb !=null)
+            {
+                telemetry.addData("White Balance", "%s (%dK)",
+                        wb.getMode(),wb.getWhiteBalanceTemperature());
+            }
+        }
+        //Test Red cell only
+        //Vision.Cell best = Robot.INSTANCE.vision.getBestScorableCell();
+        Vision.Cell best = Robot.INSTANCE.vision.getBestCell(Vision.Cell.Color.RED);
         if (best != null) {
             telemetry.addLine("== BEST SCORABLE CELL ==");
             telemetry.addData("Name & Color", best.getNameAndColor());
