@@ -27,7 +27,7 @@ public class VisionTest extends OpMode {
     @Override
     public void loop() {
         Robot.INSTANCE.vision.periodic();
-
+        /*
         VisionPortal p = Robot.INSTANCE.vision.getVisionPortal();
         if (p!=null){
             telemetry.addData("Camera State/FPS", "%s | %.1f FPS",
@@ -39,18 +39,21 @@ public class VisionTest extends OpMode {
                         wb.getMode(),wb.getWhiteBalanceTemperature());
             }
         }
+        */
 
         for (AprilTagDetection detection:
                     Robot.INSTANCE.vision.getDetections()){
             if (!(detection instanceof AprilTagClusterDetection)) continue;
             AprilTagClusterDetection cluster = (AprilTagClusterDetection) detection;
-            if (cluster.metadata.name.toUpperCase(Locale.ROOT).contains("RED")) {
-                telemetry.addData("Raw Detection", "%.1f, %.1f, %.1f",
+            //if (cluster.metadata.name.toUpperCase(Locale.ROOT).contains("RED")) {
+            telemetry.addData("Name",cluster.metadata.name);
+            telemetry.addData("Raw Detection", "%.1f, %.1f, %.1f",
                         cluster.ftcPose.x, cluster.ftcPose.y, cluster.ftcPose.z);
-                double transformed[] = Vision.cameraToRobotCenter(cluster.ftcPose);
-                telemetry.addData("Transformed", "%.1f, %.1f, %.1f",
+            double transformed[] = Vision.cameraToRobotCenter(cluster.ftcPose);
+            telemetry.addData("Transformed", "%.1f, %.1f, %.1f",
                         transformed[0], transformed[1], transformed[2]);
-            }
+            //}
+
         }
         //Test Red cell only
         //Vision.Cell best = Robot.INSTANCE.vision.getBestScorableCell();

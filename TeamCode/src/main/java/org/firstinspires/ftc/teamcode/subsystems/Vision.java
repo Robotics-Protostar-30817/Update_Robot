@@ -65,7 +65,7 @@ public class Vision implements Subsystem {
 
     // Facing straight forward on the new mount (0.0 deg default; tune with CameraTest)
     public static double CAMERA_UPWARD_TILT_DEGREES = 43.8;
-    public static double CAMERA_YAW_DEGREES = 0.0;
+    public static double CAMERA_YAW_DEGREES = -4.4;
     public static double CAMERA_ROLL_DEGREES = 0.0;
 
     // Cached frame data updated once per periodic() call
