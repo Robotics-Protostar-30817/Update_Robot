@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Odom;
 /**
  * 
@@ -53,6 +54,7 @@ public class Constants {
             }
     );
 
+
     public static MecanumConfig drivetrainConfig = new MecanumConfig(c -> {
         c.frontLeftName.set("leftFront");
         c.frontRightName.set("rightFront");
@@ -65,18 +67,18 @@ public class Constants {
         c.manualBrakeMode.set(true);
     });
 
-    /*
-    public static MecanumConfig driveConfig = new MecanumConfig(
+/*
+    public static MecanumConfig drivetrainConfig = new MecanumConfig(
             c -> {
-                c.frontLeftName.set("leftFront");
-                c.backLeftName.set("leftBack");
-                c.frontRightName.set("rightFront");
-                c.backRightName.set("rightBack");
+                c.frontLeftName.set(Drivetrain.leftFrontName);
+                c.backLeftName.set(Drivetrain.leftBackName);
+                c.frontRightName.set(Drivetrain.rightFrontName);
+                c.backRightName.set(Drivetrain.rightBackName);
 
-                c.frontLeftDirection.set(DcMotorSimple.Direction.REVERSE);
-                c.backLeftDirection.set(DcMotorSimple.Direction.REVERSE);
-                c.frontRightDirection.set(DcMotorSimple.Direction.FORWARD);
-                c.backRightDirection.set(DcMotorSimple.Direction.FORWARD);
+                c.frontLeftDirection.set(Drivetrain.LEFT_FRONT_Direction);
+                c.backLeftDirection.set(Drivetrain.LEFT_BACK_Direction);
+                c.frontRightDirection.set(Drivetrain.RIGHT_FRONT_Direction);
+                c.backRightDirection.set(Drivetrain.RIGHT_BACK_Direction);
 
                 c.manualBrakeMode.set(true);
             }
@@ -112,6 +114,7 @@ public class Constants {
     });
     */
 
+    /*
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
         c.name.set("odom");
         c.podType.set(Odom.POD_TYPE);
@@ -122,4 +125,19 @@ public class Constants {
         c.globalDistanceUnit.set(DistanceUnit.INCH);
         c.offsetUnits.set(DistanceUnit.INCH);
     });
+    */
+
+
+    public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
+        c.name.set("odom");
+        c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+        c.xPodOffset.set(-1.265);
+        c.yPodOffset.set(3.35);
+        c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
+        c.globalDistanceUnit.set(DistanceUnit.INCH);
+        c.offsetUnits.set(DistanceUnit.INCH);
+    });
+
+
 }

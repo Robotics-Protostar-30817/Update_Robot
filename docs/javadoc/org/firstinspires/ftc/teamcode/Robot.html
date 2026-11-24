@@ -73,6 +73,9 @@ loadScripts(document, 'script');</script>
 </li>
 <li><a href="#method-detail" tabindex="0">Method Details</a>
 <ol class="toc-list">
+<li><a href="#clearAutonomousEndPose()" tabindex="0">clearAutonomousEndPose()</a></li>
+<li><a href="#saveAutonomousEndPose(com.pedropathing.math.Pose)" tabindex="0">saveAutonomousEndPose(Pose)</a></li>
+<li><a href="#getAutonomousEndPose()" tabindex="0">getAutonomousEndPose()</a></li>
 <li><a href="#initShooterAndVision(com.qualcomm.robotcore.hardware.HardwareMap,org.firstinspires.ftc.robotcore.external.Telemetry,org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Color,org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Location,boolean)" tabindex="0">initShooterAndVision(HardwareMap, Telemetry, Vision.Cell.Color, Vision.Cell.Location, boolean)</a></li>
 <li><a href="#shooterAndVisionSubsystems()" tabindex="0">shooterAndVisionSubsystems()</a></li>
 </ol>
@@ -158,6 +161,14 @@ Provides centralized access to all robot subsystems.</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#clearAutonomousEndPose()" class="member-name-link">clearAutonomousEndPose</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.pedropathing.math.Pose</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAutonomousEndPose()" class="member-name-link">getAutonomousEndPose</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Null means no valid Auto pose was recorded in this app process.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#initShooterAndVision(com.qualcomm.robotcore.hardware.HardwareMap,org.firstinspires.ftc.robotcore.external.Telemetry,org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Color,org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Location,boolean)" class="member-name-link">initShooterAndVision</a><wbr>(com.qualcomm.robotcore.hardware.HardwareMap&nbsp;hardwareMap,
  org.firstinspires.ftc.robotcore.external.Telemetry&nbsp;telemetry,
  <a href="subsystems/Vision.Cell.Color.html" title="enum class in org.firstinspires.ftc.teamcode.subsystems">Vision.Cell.Color</a>&nbsp;alliance,
@@ -166,9 +177,14 @@ Provides centralized access to all robot subsystems.</div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Initializes Vision and all 7 shooter/intake actuators in one place.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>dev.nextftc.core.subsystems.Subsystem[]</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#shooterAndVisionSubsystems()" class="member-name-link">shooterAndVisionSubsystems</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#saveAutonomousEndPose(com.pedropathing.math.Pose)" class="member-name-link">saveAutonomousEndPose</a><wbr>(com.pedropathing.math.Pose&nbsp;pose)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Store a defensive copy so later localizer updates cannot change the saved pose.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>dev.nextftc.core.subsystems.Subsystem[]</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#shooterAndVisionSubsystems()" class="member-name-link">shooterAndVisionSubsystems</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns all Vision and Shooter subsystems for NextFTC SubsystemComponent registration.</div>
 </div>
 </div>
@@ -292,6 +308,32 @@ Provides centralized access to all robot subsystems.</div>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="clearAutonomousEndPose()">
+<h3>clearAutonomousEndPose</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">clearAutonomousEndPose</span>()</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="saveAutonomousEndPose(com.pedropathing.math.Pose)">
+<h3>saveAutonomousEndPose</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">saveAutonomousEndPose</span><wbr><span class="parameters">(com.pedropathing.math.Pose&nbsp;pose)</span></div>
+<div class="block">Store a defensive copy so later localizer updates cannot change the saved pose.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getAutonomousEndPose()">
+<h3>getAutonomousEndPose</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">com.pedropathing.math.Pose</span>&nbsp;<span class="element-name">getAutonomousEndPose</span>()</div>
+<div class="block">Null means no valid Auto pose was recorded in this app process.</div>
+</div>
+</section>
+</li>
 <li>
 <section class="detail" id="initShooterAndVision(com.qualcomm.robotcore.hardware.HardwareMap,org.firstinspires.ftc.robotcore.external.Telemetry,org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Color,org.firstinspires.ftc.teamcode.subsystems.Vision.Cell.Location,boolean)">
 <h3>initShooterAndVision</h3>

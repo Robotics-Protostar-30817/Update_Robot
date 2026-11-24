@@ -99,6 +99,8 @@ public class RedAudienceAuto extends OpMode {
 
     @Override
     public void init() {
+        // Do not reuse the pose from a previous match or Auto test.
+        robot.clearAutonomousEndPose();
         follower = Constants.create(hardwareMap);
 
         if (NAVIGATION_ONLY) {
@@ -246,6 +248,11 @@ public class RedAudienceAuto extends OpMode {
     @Override
     public void loop() {
         if (!started || currentState == RAAutoState.FAULT || currentState == RAAutoState.FINISHED) {
+            // Keep updating the position during the remainder of Auto.
+            if (started && follower != null) {
+                follower.update();
+                robot.saveAutonomousEndPose(follower.pose());
+            }
             showTelemetry();
             return;
         }
@@ -492,6 +499,7 @@ public class RedAudienceAuto extends OpMode {
                 }
                 stopForStationaryState("Finished");
                 follower.update();
+                robot.saveAutonomousEndPose(follower.pose());
                 if (testDrive) {
                     driveDiagnostics.log(autoTimer.seconds(), currentState.name(),
                             "In finished, after calling stop", follower);
@@ -595,7 +603,12 @@ public class RedAudienceAuto extends OpMode {
         if (!NAVIGATION_ONLY) {
             robot.completeShooter.stop();
         }
-        if (follower != null) follower.stop();
+        if (follower != null) {
+            // Capture the last tracked pose BEFORE stopping Pedro or closing hardware.
+            follower.update();
+            robot.saveAutonomousEndPose(follower.pose());
+            follower.stop();
+        }
         if (driveDiagnostics != null) driveDiagnostics.stopAllMotors();
         robot.vision.close();
         PathUtility.info(LOG_TAG, "Auto stopped, camera closed, drivetrain stopped.");

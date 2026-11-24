@@ -1,4 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
+import org.firstinspires.ftc.teamcode.R;
+
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.hardware.impl.MotorEx;
 
@@ -13,25 +17,37 @@ public class Drivetrain implements Subsystem {
     // MOTOR CONFIGURATION NAMES
     // These strings are the names that we will give the motors in the FTC Robot Controller configuration.
     // IMPORTANT: The names here MUST exactly match the names configured on the robot.
-    private final String rightFrontName = "rightFront";
-    private final String leftFrontName = "leftFront";
-    private final String rightBackName = "rightBack";
-    private final String leftBackName = "leftBack";
+    public static String rightFrontName = "rightFront";
+    public static String leftFrontName = "leftFront";
+    public static String rightBackName = "rightBack";
+    public static String leftBackName = "leftBack";
+
+    public static DcMotorSimple.Direction LEFT_FRONT_Direction= DcMotorSimple.Direction.REVERSE;
+    public static DcMotorSimple.Direction RIGHT_FRONT_Direction = DcMotorSimple.Direction.FORWARD;
+
+    public static DcMotorSimple.Direction LEFT_BACK_Direction = DcMotorSimple.Direction.REVERSE;
+
+    public static DcMotorSimple.Direction RIGHT_BACK_Direction = DcMotorSimple.Direction.FORWARD;
+
 
     //MOTOR OBJECTS
     //These variables represent the actual motors.
     //Left side is reversed.
-    private final MotorEx rightFrontMotor = new MotorEx(rightFrontName);
+    private MotorEx rightFrontMotor = new MotorEx(rightFrontName);
 
-    private final MotorEx leftFrontMotor = new MotorEx(leftFrontName).reversed();
 
-    private final MotorEx rightBackMotor = new MotorEx(rightBackName);
+    private MotorEx leftFrontMotor = new MotorEx(leftFrontName);
 
-    private final MotorEx leftBackMotor = new MotorEx(leftBackName).reversed();
+    private MotorEx rightBackMotor = new MotorEx(rightBackName);
+
+    private MotorEx leftBackMotor = new MotorEx(leftBackName);
 
 
     private Drivetrain() {
-        // The motors are already created above.
+        rightFrontMotor.setDirection(RIGHT_FRONT_Direction == DcMotorSimple.Direction.FORWARD?1:-1);
+        leftFrontMotor.setDirection(LEFT_FRONT_Direction == DcMotorSimple.Direction.FORWARD?1:-1);
+        rightBackMotor.setDirection(RIGHT_BACK_Direction == DcMotorSimple.Direction.FORWARD?1:-1);
+        leftBackMotor.setDirection(LEFT_BACK_Direction == DcMotorSimple.Direction.FORWARD?1:-1);
     }
 
     /**

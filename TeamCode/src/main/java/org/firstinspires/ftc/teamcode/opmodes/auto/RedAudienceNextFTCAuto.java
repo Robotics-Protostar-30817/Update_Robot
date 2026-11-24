@@ -57,6 +57,8 @@ public class RedAudienceNextFTCAuto extends NextFTCOpMode {
 
     @Override
     public void onInit() {
+        // Invalidate any previous run before starting this Autonomous.
+        robot.clearAutonomousEndPose();
         follower = Constants.create(hardwareMap);
         paths = new RedAudiencePaths();
         follower.setPose(paths.startPose);
@@ -141,13 +143,19 @@ public class RedAudienceNextFTCAuto extends NextFTCOpMode {
                 new InstantCommand(() -> phaseStatus = "6. Parking"),
                 idleFlywheelCommand(),
                 followPathCommand(paths.driveToPark),
-                new InstantCommand(() -> phaseStatus = "Finished")
+                new InstantCommand(() -> {
+                    phaseStatus = "Finished";
+                    saveCurrentPose();
+                })
         ).schedule();
     }
 
     @Override
     public void onUpdate() {
         follower.update();
+        // Keep the latest valid field pose available for the Auto-to-TeleOp handoff.
+        // This also covers early stops, interruptions, and emergency parking.
+        saveCurrentPose();
 
         // Keep commanding target RPM while shooting/spinning up so CompleteShooter's
         // 800 RPM idle loop does not override it
@@ -175,6 +183,7 @@ public class RedAudienceNextFTCAuto extends NextFTCOpMode {
         telemetry.addData("Phase", phaseStatus);
         telemetry.addData("Time", "%.2f / %.0f s", autoTimer.seconds(), AUTO_SECONDS);
         telemetry.addData("Pose", PathUtility.formatPose(follower.pose()));
+        telemetry.addData("Pose saved for TeleOp", robot.getAutonomousEndPose() != null);
         telemetry.addData("Audience Scorable", robot.vision.isRedAudienceScorable());
         telemetry.addData("Flywheel Target / Actual RPM", "%.0f / %.0f",
                 flywheelSpinningForShot ? SHOT_FLYWHEEL_RPM : IDLE_FLYWHEEL_RPM,
@@ -185,10 +194,19 @@ public class RedAudienceNextFTCAuto extends NextFTCOpMode {
 
     @Override
     public void onStop() {
+        // Save BEFORE stopping the follower or shutting down hardware.
+        saveCurrentPose();
         flywheelSpinningForShot = false;
         robot.completeShooter.stop();
         if (follower != null) follower.stop();
         robot.vision.close();
+    }
+
+    /** Saves a defensive copy of the latest Pedro pose in Robot.INSTANCE. */
+    private void saveCurrentPose() {
+        if (follower != null) {
+            robot.saveAutonomousEndPose(follower.pose());
+        }
     }
 
     private Command spinUpFlywheelCommand() {

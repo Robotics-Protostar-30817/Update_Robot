@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -42,6 +43,30 @@ public class Robot {
     public final AutoAim autoAim;
     public final CompleteShooter completeShooter;
 
+    // In-memory handoff between Autonomous and TeleOp in the same Robot Controller process.
+    // Coordinates are Pedro field coordinates (inches, heading radians).
+    private Pose autonomousEndPose;
+
+    public synchronized void clearAutonomousEndPose() {
+        autonomousEndPose = null;
+    }
+
+
+    /** Store a defensive copy so later localizer updates cannot change the saved pose. */
+    public synchronized void saveAutonomousEndPose(Pose pose) {
+        if (pose == null || !Double.isFinite(pose.x())
+                || !Double.isFinite(pose.y()) || !Double.isFinite(pose.heading())) {
+            return;
+        }
+        autonomousEndPose = new Pose(pose.x(), pose.y(), pose.heading());
+    }
+
+    /** Null means no valid Auto pose was recorded in this app process. */
+    public synchronized Pose getAutonomousEndPose() {
+        if (autonomousEndPose == null) return null;
+        return new Pose(autonomousEndPose.x(), autonomousEndPose.y(),
+                autonomousEndPose.heading());
+    }
     private Robot() {
         dt = Drivetrain.INSTANCE;
         odom = Odom.INSTANCE;
