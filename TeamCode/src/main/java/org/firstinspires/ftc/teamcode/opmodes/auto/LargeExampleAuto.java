@@ -11,6 +11,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import static com.pedropathing.ivy.Scheduler.schedule;
+import static com.pedropathing.ivy.commands.Commands.instant;
+import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
@@ -26,19 +28,22 @@ public class LargeExampleAuto extends OpMode {
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
     private final Pose startPose = poseFactory.of(24,24,0);
-    private final Pose scorePose = poseFactory.of(48,48,90);
-    private final Pose parkPose = poseFactory.of(72,48,90);
+    private final Pose scoreApproachPose = poseFactory.of(40, 24, 0);
+    private final Pose scorePose = poseFactory.of(40,24,90);
+    private final Pose parkPose = poseFactory.of(20,100,90);
 
     private Path startToScore(){
-        return line(startPose,scorePose).linear(startPose,scorePose);
+        return line(startPose, scoreApproachPose).constant(0);
     }
     private Path park(){
-        return line(scorePose,parkPose).linear(scorePose,parkPose);
+        return line(scorePose, parkPose).constant(Math.toRadians(90));
     }
 
     private Command autoRoutine(){
         return sequential(follow(follower,startToScore()),
                 //add other mechanism commands
+                instant(() -> follower.hold(scorePose)),//turn from 0 to 90
+                waitMs(1500),
                 follow(follower,park()));
     }
     @Override
