@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.pedro.auto.DriveDiagnostics;
 import org.firstinspires.ftc.teamcode.pedro.auto.PathUtility;
 import org.firstinspires.ftc.teamcode.pedro.auto.RedScoringPaths;
 import org.firstinspires.ftc.teamcode.subsystems.CompleteShooter;
@@ -15,11 +16,14 @@ import org.firstinspires.ftc.teamcode.subsystems.Vision;
 
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.CommandManager;
+import dev.nextftc.core.commands.conditionals.IfElseCommand;
 import dev.nextftc.core.commands.delays.Delay;
+import dev.nextftc.core.commands.delays.WaitUntil;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.commands.utility.LambdaCommand;
+import dev.nextftc.core.commands.utility.NullCommand;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
 
@@ -40,10 +44,12 @@ public class RedScoringNextFTCAuto_NavigationOnly  extends NextFTCOpMode {
     private static final double IDLE_FLYWHEEL_RPM = CompleteShooter.IDLE_FLYWHEEL_RPM; // 800.0
     private static final double HOOD_SHOT_POSITION = 0.50;
     private static final double FEED_DURATION_SECONDS = 1.6;
-    private static final double COLLECT_SETTLE_SECONDS = 1.5;
+    private static final double COLLECT_SETTLE_SECONDS = 2.0;
 
-    private static final double CELL_SCORABLE_SECONDS = 1.0;
+    private static final double CELL_SCORABLE_SECONDS = 5.0;
     //private final Robot robot = Robot.INSTANCE;
+
+    private final Vision vision = Vision.INSTANCE;
 
     private Follower follower;
     private RedScoringPaths paths;
@@ -53,9 +59,14 @@ public class RedScoringNextFTCAuto_NavigationOnly  extends NextFTCOpMode {
     private boolean flywheelSpinningForShot = false;
     private String phaseStatus = "Initialized";
 
-    //public RedScoringNextFTCAuto_NavigationOnly() {
+    private final ElapsedTime logTimer = new ElapsedTime();
+
+    private DriveDiagnostics driveDiagnostics;
+
+    public RedScoringNextFTCAuto_NavigationOnly() {
       //  addComponents(new SubsystemComponent(robot.shooterAndVisionSubsystems()));
-    //}
+        addComponents(new SubsystemComponent(vision));
+    }
 
     @Override
     public void onInit() {
@@ -63,6 +74,16 @@ public class RedScoringNextFTCAuto_NavigationOnly  extends NextFTCOpMode {
         paths = new RedScoringPaths();
         follower.setPose(paths.startPose);
         follower.update();
+        // Matches Constants.drivetrainConfig motor names without touching motor settings
+        driveDiagnostics = new DriveDiagnostics(
+                hardwareMap,
+                "leftFront",
+                "rightFront",
+                "leftBack",
+                "rightBack",
+                LOG_TAG
+        );
+        vision.init(hardwareMap, telemetry);
         /*
         robot.initShooterAndVision(
                 hardwareMap,
@@ -88,6 +109,9 @@ public class RedScoringNextFTCAuto_NavigationOnly  extends NextFTCOpMode {
         emergencyParkTriggered = false;
         normalParkingStarted = false;
 
+        driveDiagnostics.log(autoTimer.seconds(), phaseStatus, "Auto Started", follower);
+
+
         new SequentialGroup(
                 // 1. Approach scoringPose while pre-spinning flywheel to SHOT_FLYWHEEL_RPM
                 new InstantCommand(() -> phaseStatus = "1. Approach + Spin Up"),
@@ -95,8 +119,10 @@ public class RedScoringNextFTCAuto_NavigationOnly  extends NextFTCOpMode {
                         followPathCommand(paths.initialApproach)
               //          spinUpFlywheelCommand()
                 ),
-               new Delay(CELL_SCORABLE_SECONDS),
-               // waitForScoringScorableCommand(2.5),
+               //new Delay(CELL_SCORABLE_SECONDS),
+                new InstantCommand(()->phaseStatus="1.5, wait for scoring cell to be scorable"),
+                waitForScoringThenShootCommand(),
+                //waitForScoringScorableCommand(CELL_SCORABLE_SECONDS),
             //    shootFixedVolleyCommand("1. Shoot Preload"),
 
                 // 2. Drive to Flower & collect in parallel (drop flywheel to 800 RPM standby)
@@ -158,6 +184,13 @@ public class RedScoringNextFTCAuto_NavigationOnly  extends NextFTCOpMode {
     public void onUpdate() {
         follower.update();
 
+        // Periodic logging every 0.10s (matching RedScoringAuto)
+        if (logTimer.seconds() >= 0.10) {
+            driveDiagnostics.log(autoTimer.seconds(), phaseStatus, "Periodic", follower);
+            logTimer.reset();
+        }
+
+
         // Keep commanding target RPM while shooting/spinning up so CompleteShooter's
         // 800 RPM idle loop does not override it
        // if (flywheelSpinningForShot) {
@@ -170,6 +203,8 @@ public class RedScoringNextFTCAuto_NavigationOnly  extends NextFTCOpMode {
            // flywheelSpinningForShot = false;
             phaseStatus = "EMERGENCY PARK";
             PathUtility.warning(LOG_TAG, "Triggering emergency park at t=" + autoTimer.seconds());
+            driveDiagnostics.log(autoTimer.seconds(), phaseStatus, "Emergency Park Triggered", follower);
+
             CommandManager.INSTANCE.cancelAll();
           //  robot.transfer.stopFeed();
           //  robot.blocker.close();
@@ -197,9 +232,26 @@ public class RedScoringNextFTCAuto_NavigationOnly  extends NextFTCOpMode {
       //  flywheelSpinningForShot = false;
       //  robot.completeShooter.stop();
         if (follower != null) follower.stop();
-      //  robot.vision.close();
+        if (driveDiagnostics != null) {
+            driveDiagnostics.log(autoTimer.seconds(), phaseStatus, "Auto Stopped", follower);
+            driveDiagnostics.stopAllMotors();
+        }
+        vision.close();
+        PathUtility.info(LOG_TAG, "Auto stopped, camera closed, drivetrain stopped.");
+
+        //  robot.vision.close();
     }
 
+    /*
+    private Command waitForScoringCommand(){
+        Command waitForScoring = new IfElseCommand(
+                ()->vision.getBestCell(Vision.Cell.Color.RED, Vision.Cell.Location.SCORING)!= null &&
+                        autoTimer.seconds() < CELL_SCORABLE_SECONDS,
+                new NullCommand() //placeholder for shooting
+
+        );
+        return waitForScoring;
+    }*/
     /*
     private Command spinUpFlywheelCommand() {
         return new InstantCommand(() -> {
@@ -221,17 +273,25 @@ public class RedScoringNextFTCAuto_NavigationOnly  extends NextFTCOpMode {
         return new LambdaCommand()
                 .setStart(() -> {
                     timer.reset();
+                    driveDiagnostics.log(autoTimer.seconds(), phaseStatus, "Path Started", follower);
                     follower.follow(path);
                 })
                 .setIsDone(() -> timer.seconds() >= 0.05 && !follower.isBusy())
                 .setStop(interrupted -> {
+                    Pose before = follower.pose();
                     if (interrupted) follower.stop();
+                    Pose after = follower.pose();
+                    driveDiagnostics.log(autoTimer.seconds(), phaseStatus,
+                            interrupted ? "Path Interrupted" : "Path Finished", follower);
+                    driveDiagnostics.logPoseDifference(autoTimer.seconds(), phaseStatus, before, after);
+
                 });
     }
 
     /*
     private boolean isRedScoringScorable() {
-        Vision.Cell cell = robot.vision.getBestCell(Vision.Cell.Color.RED, Vision.Cell.Location.SCORING);
+        //Vision.Cell cell = robot.vision.getBestCell(Vision.Cell.Color.RED, Vision.Cell.Location.SCORING);
+        Vision.Cell cell = vision.getBestCell(Vision.Cell.Color.RED, Vision.Cell.Location.SCORING);
         return cell != null && cell.isScorable();
     }
 
@@ -241,6 +301,47 @@ public class RedScoringNextFTCAuto_NavigationOnly  extends NextFTCOpMode {
                 .setStart(timer::reset)
                 .setIsDone(() -> isRedScoringScorable() || timer.seconds() >= maxWaitSeconds);
     }*/
+    private Command waitForScoringThenShootCommand() {
+        ElapsedTime waitTimer = new ElapsedTime();
+        final boolean[] cellFound = {false};
+
+        // 1. Wait until a Red cell is in SCORING or the timeout expires
+        Command waitForCell = new LambdaCommand()
+                .setStart(() -> {
+                    waitTimer.reset();
+                    cellFound[0] = false;
+                    driveDiagnostics.log(autoTimer.seconds(), phaseStatus, "Vision Wait Started", follower);
+                })
+                .setIsDone(() -> {
+                    if (vision.getBestCell(Vision.Cell.Color.RED, Vision.Cell.Location.SCORING) != null) {
+                        cellFound[0] = true;
+                        return true;
+                    }
+                    return waitTimer.seconds() >= CELL_SCORABLE_SECONDS;
+                })
+                .setStop(interrupted -> {
+                    String event = interrupted
+                            ? "Vision Wait Interrupted"
+                            : (cellFound[0]
+                               ? String.format("Vision Cell Detected (%.2fs)", waitTimer.seconds())
+                               : String.format("Vision Wait Timed Out (%.2fs)", waitTimer.seconds()));
+                    driveDiagnostics.log(autoTimer.seconds(), phaseStatus, event, follower);
+                });
+
+        // 2. Branch using the cached detection result
+        Command shootOrSkip = new IfElseCommand(
+                () -> cellFound[0],
+                new SequentialGroup(
+                        new InstantCommand(() -> driveDiagnostics.log(autoTimer.seconds(), phaseStatus, "Shooting Preload (Placeholder)", follower)),
+                        new NullCommand() // Replace with shootFixedVolleyCommand("1. Shoot Preload") later
+                ),
+                new InstantCommand(() -> driveDiagnostics.log(autoTimer.seconds(), phaseStatus, "Skipping Shot - No Cell", follower))
+        );
+
+        return new SequentialGroup(waitForCell, shootOrSkip);
+    }
+
+
 
     /**
      * Waits for flywheel to reach SHOT_FLYWHEEL_RPM, opens blocker, feeds for FEED_DURATION_SECONDS,
