@@ -119,14 +119,17 @@ public class RedScoringNextFTCAuto extends NextFTCOpMode {
                 new InstantCommand(() -> phaseStatus = "4. Parking"),
                 idleFlywheelCommand(),
                 followPathCommand(paths.scoringToPark),
-                new InstantCommand(() -> phaseStatus = "Finished")
+                new InstantCommand(() -> {
+                    phaseStatus = "Finished";
+                    saveCurrentPose();
+                })
         ).schedule();
     }
 
     @Override
     public void onUpdate() {
         follower.update();
-
+        saveCurrentPose();
         // Keep commanding target RPM while shooting/spinning up so CompleteShooter's
         // 800 RPM idle loop does not override it
         if (flywheelSpinningForShot) {
@@ -152,6 +155,7 @@ public class RedScoringNextFTCAuto extends NextFTCOpMode {
         telemetry.addData("Phase", phaseStatus);
         telemetry.addData("Time", "%.2f / %.0f s", autoTimer.seconds(), AUTO_SECONDS);
         telemetry.addData("Pose", PathUtility.formatPose(follower.pose()));
+        telemetry.addData("Pose saved for TeleOp", robot.getAutonomousEndPose() != null);
         telemetry.addData("Scoring Scorable", isRedScoringScorable());
         telemetry.addData("Flywheel Target / Actual RPM", "%.0f / %.0f",
                 flywheelSpinningForShot ? SHOT_FLYWHEEL_RPM : IDLE_FLYWHEEL_RPM,
@@ -160,9 +164,17 @@ public class RedScoringNextFTCAuto extends NextFTCOpMode {
         telemetry.update();
     }
 
+    /** Saves a defensive copy of the latest Pedro pose in Robot.INSTANCE. */
+    private void saveCurrentPose() {
+        if (follower != null) {
+            robot.saveAutonomousEndPose(follower.pose());
+        }
+    }
+
     @Override
     public void onStop() {
         flywheelSpinningForShot = false;
+        saveCurrentPose();
         robot.completeShooter.stop();
         if (follower != null) follower.stop();
         robot.vision.close();

@@ -48,6 +48,7 @@ public class RedAudienceNextFTCAuto_NavigationOnly extends NextFTCOpMode {
     private RedAudiencePaths paths;
     private final ElapsedTime autoTimer = new ElapsedTime();
     private boolean emergencyParkTriggered = false;
+    private boolean normalParkStarted =false;
     private boolean flywheelSpinningForShot = false;
     private String phaseStatus = "Initialized";
 
@@ -59,19 +60,20 @@ public class RedAudienceNextFTCAuto_NavigationOnly extends NextFTCOpMode {
         follower = Constants.create(hardwareMap);
         paths = new RedAudiencePaths();
         follower.setPose(paths.startPose);
-
+        follower.update();
+        /*
         robot.initShooterAndVision(
                 hardwareMap,
                 telemetry,
                 Vision.Cell.Color.RED,
                 Vision.Cell.Location.AUDIENCE,
                 true
-        );
+        );*/
 
         // Lock turret at center and set fixed hood angle for shootPose
-        robot.turret.setTargetAngle(0.0);
-        robot.hood.setPosition(HOOD_SHOT_POSITION);
-        flywheelSpinningForShot = false;
+        //robot.turret.setTargetAngle(0.0);
+        //robot.hood.setPosition(HOOD_SHOT_POSITION);
+        //flywheelSpinningForShot = false;
 
         telemetry.addLine("Red Audience NextFTC Auto Ready (Fixed Pose Mode)");
         telemetry.update();
@@ -81,68 +83,69 @@ public class RedAudienceNextFTCAuto_NavigationOnly extends NextFTCOpMode {
     public void onStartButtonPressed() {
         autoTimer.reset();
         emergencyParkTriggered = false;
+        normalParkStarted = false;
 
         new SequentialGroup(
                 // 1. Approach shootPose while pre-spinning flywheel to SHOT_FLYWHEEL_RPM
                 new InstantCommand(() -> phaseStatus = "1. Approach + Spin Up"),
                 new ParallelGroup(
-                        followPathCommand(paths.initialApproach),
-                        spinUpFlywheelCommand()
+                        followPathCommand(paths.initialApproach)
+                  //      spinUpFlywheelCommand()
                 ),
-                waitForAudienceScorableCommand(2.5),
-                shootFixedVolleyCommand("1. Shoot Preload"),
+               // waitForAudienceScorableCommand(2.5),
+               // shootFixedVolleyCommand("1. Shoot Preload"),
 
                 // 2. Drive to Garden & collect (drop flywheel back to 800 RPM standby)
                 new InstantCommand(() -> phaseStatus = "2. Drive & Collect Garden"),
-                idleFlywheelCommand(),
+               // idleFlywheelCommand(),
                 new ParallelGroup(
-                        followPathCommand(paths.driveToGarden),
-                        robot.completeShooter.startCollectingCommand()
+                        followPathCommand(paths.driveToGarden)
+                 //       robot.completeShooter.startCollectingCommand()
                 ),
                 new Delay(COLLECT_SETTLE_SECONDS),
 
                 // 3. Return to Audience shootPose & pre-spin flywheel during transit
                 new InstantCommand(() -> phaseStatus = "3. Return + Spin Up"),
                 new ParallelGroup(
-                        followPathCommand(paths.gardenToAudience),
-                        new SequentialGroup(
-                                new Delay(0.5),
-                                robot.completeShooter.stopCollectingCommand(),
-                                spinUpFlywheelCommand()
-                        )
+                        followPathCommand(paths.gardenToAudience)
+                        //new SequentialGroup(
+                          //      new Delay(0.5),
+                                //robot.completeShooter.stopCollectingCommand(),
+                                //spinUpFlywheelCommand()
+                        //)
                 ),
-                waitForAudienceScorableCommand(2.5),
-                shootFixedVolleyCommand("3. Shoot Garden Pollen"),
+                //waitForAudienceScorableCommand(2.5),
+                //shootFixedVolleyCommand("3. Shoot Garden Pollen"),
 
                 // 4. Drive to Flower & collect
                 new InstantCommand(() -> phaseStatus = "4. Drive & Collect Flower"),
-                idleFlywheelCommand(),
+               // idleFlywheelCommand(),
                 new ParallelGroup(
-                        followPathCommand(paths.driveToFlower),
-                        robot.completeShooter.startCollectingCommand()
+                        followPathCommand(paths.driveToFlower)
+                 //       robot.completeShooter.startCollectingCommand()
                 ),
                 new Delay(COLLECT_SETTLE_SECONDS),
 
                 // 5. Return to Audience shootPose & pre-spin flywheel during transit
                 new InstantCommand(() -> phaseStatus = "5. Return + Spin Up"),
                 new ParallelGroup(
-                        followPathCommand(paths.flowerToAudience),
-                        new SequentialGroup(
-                                new Delay(0.5),
-                                robot.completeShooter.stopCollectingCommand(),
-                                spinUpFlywheelCommand()
-                        )
+                        followPathCommand(paths.flowerToAudience)
+                   //     new SequentialGroup(
+                     //           new Delay(0.5),
+                       //         robot.completeShooter.stopCollectingCommand(),
+                        //        spinUpFlywheelCommand()
+                       // )
                 ),
-                waitForAudienceScorableCommand(2.5),
-                shootFixedVolleyCommand("5. Shoot Flower Pollen"),
+                //waitForAudienceScorableCommand(2.5),
+                //shootFixedVolleyCommand("5. Shoot Flower Pollen"),
 
                 // 6. Park
                 new InstantCommand(() -> phaseStatus = "6. Parking"),
-                idleFlywheelCommand(),
+               // idleFlywheelCommand(),
                 followPathCommand(paths.driveToPark),
                 new InstantCommand(() -> {
                     phaseStatus = "Finished";
-                    saveCurrentPose();
+                    //saveCurrentPose();
                 })
         ).schedule();
     }
@@ -152,24 +155,25 @@ public class RedAudienceNextFTCAuto_NavigationOnly extends NextFTCOpMode {
         follower.update();
         // Keep the latest valid field pose available for the Auto-to-TeleOp handoff.
         // This also covers early stops, interruptions, and emergency parking.
-        saveCurrentPose();
+        //saveCurrentPose();
 
         // Keep commanding target RPM while shooting/spinning up so CompleteShooter's
         // 800 RPM idle loop does not override it
-        if (flywheelSpinningForShot) {
-            robot.flywheel.setFlywheelRPM(SHOT_FLYWHEEL_RPM);
-        }
+        //if (flywheelSpinningForShot) {
+        //    robot.flywheel.setFlywheelRPM(SHOT_FLYWHEEL_RPM);
+        //}
 
         // Emergency park watchdog before 30s expiration
-        if (!emergencyParkTriggered && autoTimer.seconds() >= AUTO_SECONDS - PARK_RESERVE_SECONDS) {
+        if (!emergencyParkTriggered && !normalParkStarted &&
+                autoTimer.seconds() >= AUTO_SECONDS - PARK_RESERVE_SECONDS) {
             emergencyParkTriggered = true;
-            flywheelSpinningForShot = false;
+          //  flywheelSpinningForShot = false;
             phaseStatus = "EMERGENCY PARK";
             PathUtility.warning(LOG_TAG, "Triggering emergency park at t=" + autoTimer.seconds());
             CommandManager.INSTANCE.cancelAll();
-            robot.transfer.stopFeed();
-            robot.blocker.close();
-            robot.completeShooter.stopCollecting();
+            //robot.transfer.stopFeed();
+            //robot.blocker.close();
+            //robot.completeShooter.stopCollecting();
 
             Pose current = follower.pose();
             if (current != null) {
@@ -180,32 +184,26 @@ public class RedAudienceNextFTCAuto_NavigationOnly extends NextFTCOpMode {
         telemetry.addData("Phase", phaseStatus);
         telemetry.addData("Time", "%.2f / %.0f s", autoTimer.seconds(), AUTO_SECONDS);
         telemetry.addData("Pose", PathUtility.formatPose(follower.pose()));
-        telemetry.addData("Pose saved for TeleOp", robot.getAutonomousEndPose() != null);
-        telemetry.addData("Audience Scorable", robot.vision.isRedAudienceScorable());
-        telemetry.addData("Flywheel Target / Actual RPM", "%.0f / %.0f",
-                flywheelSpinningForShot ? SHOT_FLYWHEEL_RPM : IDLE_FLYWHEEL_RPM,
-                robot.flywheel.getFlywheelRPM());
-        telemetry.addData("Flywheel Ready", robot.flywheel.isReadyToShoot());
+       // telemetry.addData("Pose saved for TeleOp", robot.getAutonomousEndPose() != null);
+        //telemetry.addData("Audience Scorable", robot.vision.isRedAudienceScorable());
+        //telemetry.addData("Flywheel Target / Actual RPM", "%.0f / %.0f",
+        //        flywheelSpinningForShot ? SHOT_FLYWHEEL_RPM : IDLE_FLYWHEEL_RPM,
+        //        robot.flywheel.getFlywheelRPM());
+        //telemetry.addData("Flywheel Ready", robot.flywheel.isReadyToShoot());
         telemetry.update();
     }
 
     @Override
     public void onStop() {
         // Save BEFORE stopping the follower or shutting down hardware.
-        saveCurrentPose();
-        flywheelSpinningForShot = false;
-        robot.completeShooter.stop();
+       // saveCurrentPose();
+       // flywheelSpinningForShot = false;
+       // robot.completeShooter.stop();
         if (follower != null) follower.stop();
-        robot.vision.close();
+       // robot.vision.close();
     }
 
-    /** Saves a defensive copy of the latest Pedro pose in Robot.INSTANCE. */
-    private void saveCurrentPose() {
-        if (follower != null) {
-            robot.saveAutonomousEndPose(follower.pose());
-        }
-    }
-
+    /*
     private Command spinUpFlywheelCommand() {
         return new InstantCommand(() -> {
             flywheelSpinningForShot = true;
@@ -219,7 +217,7 @@ public class RedAudienceNextFTCAuto_NavigationOnly extends NextFTCOpMode {
             robot.flywheel.setFlywheelRPM(IDLE_FLYWHEEL_RPM);
         });
     }
-
+*/
     private Command followPathCommand(Path path) {
         ElapsedTime timer = new ElapsedTime();
         return new LambdaCommand()
@@ -232,18 +230,19 @@ public class RedAudienceNextFTCAuto_NavigationOnly extends NextFTCOpMode {
                     if (interrupted) follower.stop();
                 });
     }
-
+/*
     private Command waitForAudienceScorableCommand(double maxWaitSeconds) {
         ElapsedTime timer = new ElapsedTime();
         return new LambdaCommand()
                 .setStart(timer::reset)
                 .setIsDone(() -> robot.vision.isRedAudienceScorable() || timer.seconds() >= maxWaitSeconds);
     }
-
+*/
     /**
      * Waits for flywheel to reach SHOT_FLYWHEEL_RPM, opens blocker, feeds for FEED_DURATION_SECONDS,
      * then closes blocker and stops the upper feed motor.
      */
+    /*
     private Command shootFixedVolleyCommand(String label) {
         ElapsedTime stateTimer = new ElapsedTime();
         ElapsedTime stageTimer = new ElapsedTime();
@@ -280,5 +279,5 @@ public class RedAudienceNextFTCAuto_NavigationOnly extends NextFTCOpMode {
                     robot.transfer.stopFeed();
                     robot.blocker.close();
                 });
-    }
+    }*/
 }
