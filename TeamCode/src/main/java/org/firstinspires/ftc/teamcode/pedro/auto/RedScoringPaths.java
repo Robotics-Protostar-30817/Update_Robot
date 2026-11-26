@@ -18,8 +18,8 @@ public final class RedScoringPaths {
 
     // Estimated image positions: left green point, green/purple junction,
     // upper green point, and upper-left purple point respectively.
-    public final Pose startPose = p.of(65.0, 132.0, 270.0);
-    public final Pose scoringPose = p.of(65.0, 120.0, 270.0);
+    public final Pose startPose = p.of(60.0, 130.0, 270.0);
+    public final Pose scoringPose = p.of(60.0, 114.0, 270.0);
     public final Pose collectionPose = p.of(48.0, 122.0, 90.0);
     public final Pose parkPose = p.of(15.0, 120.0, 180.0);
 

@@ -18,10 +18,11 @@ import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
-@Autonomous
+//ivy scheduler of Pedro Pathing v3 is adopted.
 /**
  * 
  */
+@Autonomous(name = "Pedro Pathing ivy testing", group = "Test")
 public class LargeExampleAuto extends OpMode {
 
     private Follower follower;

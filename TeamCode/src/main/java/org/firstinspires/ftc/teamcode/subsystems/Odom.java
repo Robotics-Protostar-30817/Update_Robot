@@ -28,10 +28,10 @@ public class Odom implements Subsystem {
             GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD;
 
     // X Offset: Forward/backward distance from robot center to the lateral (strafe) pod wheel (inches)
-    public static double X_POD_OFFSET_INCHES = -1.265;
+    public static double X_POD_OFFSET_INCHES = +0.6;
 
     // Y Offset: Left/right distance from robot center to the forward (axial) pod wheel (inches)
-    public static double Y_POD_OFFSET_INCHES = 3.35;
+    public static double Y_POD_OFFSET_INCHES = -3.0;
 
     public static GoBildaPinpointDriver.EncoderDirection X_POD_DIRECTION =
             GoBildaPinpointDriver.EncoderDirection.FORWARD;
