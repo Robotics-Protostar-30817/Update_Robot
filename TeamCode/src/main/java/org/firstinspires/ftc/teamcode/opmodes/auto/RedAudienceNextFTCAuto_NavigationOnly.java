@@ -42,7 +42,7 @@ public class RedAudienceNextFTCAuto_NavigationOnly extends NextFTCOpMode {
     private static final double FEED_DURATION_SECONDS = 1.6;
     private static final double COLLECT_SETTLE_SECONDS = 1.5;
 
-   // private final Robot robot = Robot.INSTANCE;
+   private final Robot robot = Robot.INSTANCE;
 
     private Follower follower;
     private RedAudiencePaths paths;
